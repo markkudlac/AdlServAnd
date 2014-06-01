@@ -1,0 +1,48 @@
+
+
+.adunit{
+	height: 50px; 
+	width: 300px;
+}
+
+.coupon{
+	display: table;
+	margin: 0 auto;
+}
+
+.messg{
+	font-size: 150%;
+	color: "#000";
+	font-weight: bold;
+	text-align: center;
+  vertical-align: middle;
+	line-height: 50px;	//same as div for verticle align 
+}
+
+.mess1{
+	background-color: #99F;	
+}
+
+.mess2{
+	background-color: #6F6;
+}
+
+
+.adlauncher{
+	position: fixed;
+	bottom: 2px;
+	left: 2px;
+}
+
+
+.dismiss{
+	padding: 3px 18px !important;
+/*	border: 1px solid #F00; */
+}
+
+.chklab{
+	font-size: 125% !important;
+	padding-top: 4px;
+	padding-bottom: 4px; 
+/*	border: 1px solid #00F; */
+}

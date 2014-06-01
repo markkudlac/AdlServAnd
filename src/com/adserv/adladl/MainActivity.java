@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
 				public void run() {
 					try {
 						startHttpdServer(8080, "localhost");
-
+//						startHttpdServer(8080, "192.168.1.108");
 					} catch (Exception ex) {
 						System.out.println("Select thread exception : " + ex);
 					}

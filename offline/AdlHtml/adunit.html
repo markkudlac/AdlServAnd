@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>AdlServ</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+	<link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+	<link rel="stylesheet" href="css/adunit.css" />
+	
+	<script type="text/javascript" src="js/jquery-1.10.0.min.js"></script>
+	<script type="text/javascript" src="js/jqrymobinit.js"></script>
+	<script type="text/javascript" src="js/jquery.mobile-1.4.2.min.js"></script>
+
+	<script type="text/javascript" src="js/static.js"></script>
+	<script type="text/javascript" src="js/adunit.js"></script>
+<!--		
+	<script type="text/javascript" src="js/common.js"></script>
+-->
+	
+</head>
+
+<body>
+	<div id="adl0" data-role="page" class="adunit adladlfind">
+			<div data-role="content" style="padding: 0px">
+			<img src="img/adladl_ad.gif" />
+			</div>
+	</div>
+			
+	<div id="adlmess" data-role="page" class="adunit">
+			<div id="adltext" data-role="none" class="messg mess1">
+				MESSAGE 1
+			</div>
+			<img srv="img/adlauncher.png" class="adlauncher" />
+	</div>
+			
+	<div id="adlmess2" data-role="page" class="adunit">
+			<div id="adltext2" data-role="none" class="messg mess2">
+				MESSAGE 2
+			</div>
+			<img srv="img/adlauncher.png" class="adlauncher" />
+	</div>
+			
+	<div id="clrinst" data-role="page"  data-theme='a' class="adunit">
+		<div data-role="content" class="dismiss" >		
+			<div data-role="fieldcontain"  style="padding: 2px">
+				<fieldset data-role="controlgroup" data-iconpos="right">
+			<input type="checkbox" name="checkinst" id="checkinst" />
+			<label for="checkinst" class="chklab">Do Not Show Again</label>
+		</fieldset></div>
+		</div>
+	</div>
+	
+	
+<script>
+
+console.log("In AdlServ")
+
+
+$(document).ready(function(){
+	
+	console.log("Document ready AdlServ")
+
+	beginads();
+
+})
+
+</script
+
+</body>
+</html>
+	
+<!--
+	
+<%= javascript_tag(render :template => "layouts/adunit", :formats => [:js],
+	:locals => {:baseurl => geturl, :prizemode => @prizemode,
+	:devicetag => @devicetag, :adlauncher => image_tag("adlauncher.png", class: "adlauncher")}) %>
+	
+-->
