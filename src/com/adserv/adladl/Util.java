@@ -1,6 +1,5 @@
 package com.adserv.adladl;
 
-
 import java.io.File;
 
 import java.io.BufferedInputStream;
@@ -18,13 +17,11 @@ import static com.adserv.adladl.Const.HTML_DIR;
 import static com.adserv.adladl.Const.USERHTML_DIR;
 import static com.adserv.adladl.Const.BASE_BLOCKSIZE;
 
-
-import com.adserv.adladl.MainActivity;
+import android.content.Context;
 
 
 public class Util {
 
-	
 	 static   void DeleteRecursive(File fileOrDirectory) {
 		 
 		 System.out.println("IN deleteRecursive : " + fileOrDirectory.getAbsolutePath());
@@ -36,10 +33,8 @@ public class Util {
 	        }
 	 
 	 
-     public static void versionChangeHTML(MainActivity mnact ) {
-     	
-//    		if (FS_Util.changedVersionNumber(mnact)) {
- 		if (true) {
+
+    public static void versionChangeHTML(Context mnact ) {     	
      	
 	        	try {
 	        		
@@ -66,13 +61,10 @@ public class Util {
 	        		System.out.println( "File I/O error " + e);
 	        	}
      	
-    		} else {
- 			System.out.println("The ver num is the same");
- 		}
      }
      
      
-     public static void untarTGzFile(MainActivity mnact) throws IOException {
+     public static void untarTGzFile(Context mnact) throws IOException {
      	
  		String destFolder = mnact.getFilesDir().getAbsolutePath();
  		FileInputStream zis = (mnact.getAssets().openFd("rootpack.targz")).createInputStream();
@@ -86,7 +78,7 @@ public class Util {
      
      
      
-     private static void untar(MainActivity mnact, TarInputStream tis, String destFolder) throws IOException {
+     private static void untar(Context mnact, TarInputStream tis, String destFolder) throws IOException {
  		BufferedOutputStream dest = null;
 
  		TarEntry entry;

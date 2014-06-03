@@ -1,7 +1,6 @@
 package com.adserv.adladl;
 
 
-import fi.iki.elonen.SimpleWebServer;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.res.Configuration;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 
 public class MainActivity extends Activity {
 
-	public static SimpleWebServer HttpdServ = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +25,10 @@ public class MainActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		
-		Util.versionChangeHTML(this);
-		turnServerOn();
+
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -39,6 +37,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -68,6 +67,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
@@ -79,60 +79,14 @@ public class MainActivity extends Activity {
 			System.out.println("Got configuration change : Portrait");
 		}
 	}
+
 	
 	public void onDestroy() {
 		super.onDestroy();
 
 		System.out.println("In DESTROY");
 
-		stopHttpdServer();
-
-		System.out.println("Destroy OUT");
-
 	}
 
-	
-	public void startHttpdServer(int httpdPort, String ipadd) {
 
-		try {
-			stopHttpdServer();
-			System.out.println("get Files Dir  : " + getFilesDir());
-			HttpdServ = new SimpleWebServer(ipadd, httpdPort, getFilesDir());
-			HttpdServ.start();
-			System.out.println("HttpdServ started Add : " + ipadd + "  Port : "
-					+ httpdPort);
-		} catch (Exception ex) {
-			System.out.println("HttpdServer error  : " + ex);
-		}
-	}
-	
-	
-	public void stopHttpdServer() {
-
-		try {
-			if (HttpdServ != null) {
-				HttpdServ.stop();
-				HttpdServ = null;
-			}
-
-		} catch (Exception ex) {
-			System.out.println("HttpdServer stop : " + ex);
-		}
-	}
-	
-	
-	public void turnServerOn() {
-
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						startHttpdServer(8080, "localhost");
-//						startHttpdServer(8080, "192.168.1.108");
-					} catch (Exception ex) {
-						System.out.println("Select thread exception : " + ex);
-					}
-
-				}
-			}).start();
-	}
 }
