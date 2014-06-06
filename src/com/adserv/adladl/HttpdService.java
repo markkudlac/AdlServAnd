@@ -12,7 +12,7 @@ import android.os.SystemClock;
 public class HttpdService extends Service {
 
 	public static SimpleWebServer HttpdServ = null;
-	public static SQLHelper adserverdb = null;
+	public static SQLHelper AdserverDb = null;
 	
 	
 	 public int onStartCommand(Intent intent, int flags, int startId) {
@@ -25,12 +25,12 @@ public class HttpdService extends Service {
 	public IBinder onBind(Intent intent) {
 		
 		System.out.println("In HttpdService onBind");
-		
-	 	turnServerOn();
-//	 	SystemClock.sleep(500);
+	
 	 	stopDb();
-	 	adserverdb = new SQLHelper(this);
-	 	
+	 	AdserverDb = new SQLHelper(this);
+//	 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
+	 	turnServerOn();		//Must be after database is open
+	 	SystemClock.sleep(250);	 	
 		return new Binder();
 	}
 
@@ -41,10 +41,10 @@ public class HttpdService extends Service {
 		super.onDestroy();
 
 		System.out.println("In DESTROY");
-
 		stopHttpdServer();
 		stopDb();
 	}
+	
 	
 	
 	public void startHttpdServer(int httpdPort, String ipadd) {
@@ -95,9 +95,9 @@ public class HttpdService extends Service {
 	
 	private void stopDb(){
 		
-		if (adserverdb != null){
-			adserverdb.closeDb();
-			adserverdb = null;
+		if (AdserverDb != null){
+			AdserverDb.closeDb();
+			AdserverDb = null;
 		}
 	}
 }

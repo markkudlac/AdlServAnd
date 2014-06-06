@@ -95,8 +95,8 @@ public class SimpleWebServer extends NanoHTTPD {
         if (uri.indexOf("/api/") == 0){
         	String msg;
         	
-        	System.out.println("uri has api");
-        	msg = Routes.parse(uri);
+ //       	System.out.println("uri has api");
+        	msg = Routes.callMethods(uri);
         	
         	res = new Response(msg);
         } else if (!homeDir.isDirectory())
@@ -272,12 +272,12 @@ public class SimpleWebServer extends NanoHTTPD {
         Iterator<String> e = header.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
-            System.out.println("  HDR: '" + value + "' = '" + header.get(value) + "'");
+ //           System.out.println("  HDR: '" + value + "' = '" + header.get(value) + "'");
         }
         e = parms.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
-            System.out.println("  PRM: '" + value + "' = '" + parms.get(value) + "'");
+//            System.out.println("  PRM: '" + value + "' = '" + parms.get(value) + "'");
             if (value.equals("file")) {
             	filename = parms.get(value);
             }
@@ -285,7 +285,7 @@ public class SimpleWebServer extends NanoHTTPD {
         e = files.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
-            System.out.println("  UPLOADED: '" + value + "' = '" + files.get(value) + "'");
+//            System.out.println("  UPLOADED: '" + value + "' = '" + files.get(value) + "'");
             
       //Added for transfer of upload files. This should be reviewed later
             

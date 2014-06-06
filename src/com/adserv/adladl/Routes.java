@@ -1,43 +1,56 @@
 package com.adserv.adladl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static com.adserv.adladl.Const.*;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class Routes {
 	
-	public static String parse(String uri){
+	public static String callMethods(String uri){
+
 		String msg = "{\"rtn\":false}";
 		
-		if (uri.indexOf("/getads/") > 0){
-			try {
-				List<String> jstr = new ArrayList<String>();
-			JSONObject jsob = new JSONObject();
-			
-			jsob.put("id", 1);
-			jsob.put("urlimg", "/ads/kkat300x50.gif");
-			jsob.put("urlhref","http://hersheys.com/kitkat");
-			jstr.add(jsob.toString().replace("\\", ""));
-			
-			jsob.put("id", 2);
-			jsob.put("urlimg", "/ads/rover300x50.jpg");
-			jsob.put("urlhref","http://hersheys.com/landrover.com/us/en/lr");
-			jstr.add(jsob.toString().replace("\\", ""));
-			
-			msg = jstr.toString();
-			System.out.println(msg);
-			
-			}
-			
-			catch(JSONException ex) {
-				        ex.printStackTrace();
-				    }
+		uri = trimUri(uri,API_PATH);
 
+		if (uri.indexOf("getads/") == 0){
+			uri = trimUri(uri,"getads/");
+			System.out.println("trimUri : "+uri);			
+			msg = SQLHelper.getads(getArg(uri, 1));
+			
 		}
 		return(msg);
 	}
 
+	
+	private static String trimUri(String uri, String lead){
+		
+		String strout = "";
+		
+		final Matcher matcher = Pattern.compile(lead).matcher(uri);
+		if(matcher.find()){
+		    strout = uri.substring(matcher.end()).trim();
+		}
+		
+		return(strout);
+	}
+	
+	
+	private static String getArg(String uri, int indx){
+		
+		String xx = null;
+		int i = 0;
+		final Matcher matcher = Pattern.compile("(\\w+)").matcher(uri);
+		
+		while (matcher.find()) {
+			if (i == indx) {
+				xx = matcher.group(0);
+				break;
+			}
+			++i;
+		}
+		
+		return(xx);
+	}
 }

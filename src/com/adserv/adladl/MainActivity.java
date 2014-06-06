@@ -1,15 +1,20 @@
 package com.adserv.adladl;
 
 
+import com.adserv.adladl.HttpCom;
+import com.adserv.adladl.R;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.res.Configuration;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
@@ -25,7 +30,6 @@ public class MainActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		
-
 	}
 
 	
@@ -88,5 +92,19 @@ public class MainActivity extends Activity {
 
 	}
 
+	
+	public void click(View view) {
+		int id = view.getId();
 
+		switch (id) {
+		case R.id.testbut:
+			Toast.makeText(getBaseContext(), "Button press",
+					Toast.LENGTH_LONG).show();
+			
+		 	new SQLHelper(this);
+		 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
+
+			return;
+		}
+	}
 }

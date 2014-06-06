@@ -7,17 +7,21 @@ import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import java.util.zip.GZIPInputStream;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarInputStream;
 
-import static com.adserv.adladl.Const.HTML_DIR;
-import static com.adserv.adladl.Const.USERHTML_DIR;
-import static com.adserv.adladl.Const.BASE_BLOCKSIZE;
+import static com.adserv.adladl.Const.*;
+
 
 import android.content.Context;
+import android.net.Uri;
+
 
 
 public class Util {
@@ -83,7 +87,7 @@ public class Util {
 
  		TarEntry entry;
  		while ((entry = tis.getNextEntry()) != null) {
- 			System.out.println("Extracting: " + entry.getName());
+// 			System.out.println("Extracting: " + entry.getName());
  			int count;
  			byte data[] = new byte[BASE_BLOCKSIZE];
 
@@ -109,4 +113,76 @@ public class Util {
  		}
  	}
      
+     
+     static public File targetCopyFile(String copyfile) {
+     	File dirfile, targfile;
+ 		String fileonly, dir;
+ 		
+ 		fileonly = copyfile;
+ 		int xind = fileonly.lastIndexOf("/");   		
+ 		if (xind >= 0){
+ 			 fileonly = fileonly.substring(xind+1);
+ 		}
+ 		
+ 		dir = copyfile.substring(0, xind);
+ 		
+ //		System.out.println("targetCopy dir : "+dir+"  file : "+fileonly);
+     	dirfile = new File(dir);
+     	if (!dirfile.exists()) {		
+     		dirfile.mkdirs();
+  //   		System.out.println("targetCopy dir is created");
+     	}
+     	
+     	targfile = new File(dirfile,fileonly);
+     	
+     	if (targfile.exists()){
+ //    		System.out.println("file exists : "+ targfile.getPath());
+     		targfile.delete();
+     	}
+     	
+     	return (new File(dirfile,fileonly));
+     }
+     
+     
+     static public void downloadFile(Context context, long id, String uri){
+     	HttpURLConnection con = null;
+        File downfl = null;
+        byte [] xbuf = new byte[BASE_BLOCKSIZE];
+    	
+    	try {
+    		System.out.println("HttpAdImage : "+uri);
+    		downfl = Util.targetCopyFile(context.getFilesDir()+uri);
+ 
+    		URL url = new URL(HTTP_PROT, SOURCE_ADDRESS, Uri.encode(uri));
+    		con = (HttpURLConnection) url.openConnection();
+    		
+    		InputStream httpin = (InputStream) con.getInputStream();
+    	    FileOutputStream downflout = new FileOutputStream(downfl); 
+    	    
+    	    // Transfer bytes from in to out
+    	    System.out.println("Start transfer");
+    	    Integer fbytes = 0;
+    	    int len;
+    	    while ((len = httpin.read(xbuf)) > 0) {
+    	        downflout.write(xbuf, 0, len);
+    	        fbytes += len;
+    	    }
+    	    httpin.close();
+    	    downflout.close();
+    	    
+    	    SQLHelper.setAdvertStatus(id, "A");		//Make advert active
+    	    System.out.println("Done transfer");
+    	}
+    	catch (Exception ex) { 
+    		System.out.println("Exception caught 1 : " + ex); 
+    	}
+
+    	finally {
+    		if (con != null) {
+    			con.disconnect();	
+    		} else {
+    			System.out.println("con null 2"); 
+    		}
+    	}
+     }
 }
