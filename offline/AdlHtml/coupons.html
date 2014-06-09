@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Vault</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+	<link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+	<link rel="stylesheet" href="css/adunit.css" />
+	
+	<script type="text/javascript" src="js/jquery-1.10.0.min.js"></script>
+	<script type="text/javascript" src="js/jqrymobinit.js"></script>
+	<script type="text/javascript" src="js/jquery.mobile-1.4.2.min.js"></script>
+
+	<script type="text/javascript" src="js/static.js"></script>
+	<script type="text/javascript" src="js/coupons.js"></script>
+</head>
+
+<body>
+	<div id="COpage" data-role="page">
+		<div data-role="header" data-position="fixed">
+			<h1>Coupons</h1>
+		</div>
+		
+		<div  data-role="content">   
+			<ul id="COlist" data-role="listview">
+			</ul>
+		</div>
+		<div data-role="footer" class="ui-bar" data-position="fixed">
+			<a href="#ADpage" data-theme="b">Ads</a>
+		    <a href="http://www.adladl.com/contact" data-theme="b"
+					data-role="button">Contact</a>
+		  </div>
+	</div>
+		
+	<div id="ADpage" data-role="page">
+		<div data-role="header" data-position="fixed">
+			<h1>Ads</h1>
+		</div>
+	
+		<div  data-role="content">   
+			<ul id="ADlist" data-role="listview">
+			</ul>
+		</div>
+		
+		<div data-role="footer" class="ui-bar" data-position="fixed">
+			<a data-rel="back" data-theme="b">Coupons</a>
+		    <a href="http://www.adladl.com/contact" data-theme="b"
+					data-role="button">Contact</a>
+		  </div>
+	</div>
+	
+	<script>
+
+	$(document).ready(function(){
+	
+		console.log("Document ready Coupons")
+		begincoupons();
+
+	})
+
+	</script
+</body>
+</html>		
+		
+	

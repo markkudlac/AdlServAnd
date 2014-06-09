@@ -1,14 +1,15 @@
 package com.adserv.adladl;
 
-
 import com.adserv.adladl.HttpCom;
 import com.adserv.adladl.R;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.res.Configuration;
 
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+	static private String droidId = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,7 @@ public class MainActivity extends Activity {
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		
+		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 	}
 
 	
@@ -96,13 +99,21 @@ public class MainActivity extends Activity {
 	public void click(View view) {
 		int id = view.getId();
 
+		Toast.makeText(getBaseContext(), "Button press",
+				Toast.LENGTH_SHORT).show();
+		
 		switch (id) {
 		case R.id.testbut:
-			Toast.makeText(getBaseContext(), "Button press",
-					Toast.LENGTH_LONG).show();
+
 			
 		 	new SQLHelper(this);
-		 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
+		 	new HttpCom(this, "storeAds").execute("getads/"+droidId+"/0");
+
+			return;
+			
+		case R.id.vaultbut:
+			Intent intent = new Intent(this, CouponActivity.class);
+			startActivity(intent);
 
 			return;
 		}

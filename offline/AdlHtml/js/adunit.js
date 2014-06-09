@@ -8,7 +8,7 @@ var timer = null;
 var prizetimer = null;
 var prizecnt = 0;
 var prizeobj = null;
-var instructflg = -1;
+var instructflg = 0;
 var tapnhold = false; //This is used to resolve conflict of tap and taphold
 
 function beginads(){
@@ -163,8 +163,8 @@ xhref = $(this).find('a').attr("href")
 				
 				tapnhold = true;
 				console.log("tap and hold event")
-				window.open("localhost:8080/coupons/" + devicetag,"_blank")
-				
+//				window.open("localhost:8080/coupons/" + devicetag,"_blank")
+				window.jsinterface.vault();
 				if (!activePrize()){
 					beginAdScrolling();
 				}

@@ -2,9 +2,6 @@ package com.adserv.adladl;
 
 import static com.adserv.adladl.Const.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,13 +9,11 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteException;
 import android.database.SQLException;
-import android.os.SystemClock;
-import android.text.format.Time;
+
 
 public class SQLHelper extends SQLiteOpenHelper {
 
@@ -66,10 +61,31 @@ public class SQLHelper extends SQLiteOpenHelper {
 		
 		try  {
 		db.execSQL(
+				"create table " + TABLE_DEVICE +" ( " +
+				FLD_ID + " integer primary key autoincrement, " +
+				FLD_TAG + " text, " +
+				FLD_INSTRUCT_CNT + " integer default 0, " +
+				FLD_STATUS + " char(1) default \'A\', " +
+				FLD_CREATED_AT + " integer default 0, " +
+				FLD_UPDATED_AT + " integer default 0" +
+				")"
+			);
+		
+		db.execSQL(
+				"create table " + TABLE_AD_LISTS +" ( " +
+				FLD_ID + " integer primary key autoincrement, " +
+				FLD_ADVERT_ID + " integer default 0 unique, " +
+				FLD_ACTION + " integer default 0, " +
+				FLD_CREATED_AT + " integer default 0, " +
+				FLD_UPDATED_AT + " integer default 0" +
+				")"
+			);
+		
+		db.execSQL(
 				"create table " + TABLE_ADVERTS +" ( " +
 				FLD_ID + " integer primary key autoincrement, " +
 				FLD_GRPCD + " integer default 0, " +
-				FLD_ADTYPE + " char(2) default \'AD\', " +
+				FLD_ADTYPE + " char(2) default \'" + FLD_ADTYPE_AD + "\', " +
 				FLD_URLIMG + " text, " +
 				FLD_URLHREF + " text, " +
 				FLD_ADL_ID + " integer not null unique, " +		//This should generate index
@@ -77,59 +93,14 @@ public class SQLHelper extends SQLiteOpenHelper {
 				FLD_CREATED_AT + " integer " +
 				")"
 			);
-
 		
-//		initializeAdverts(db);
+		initializeDevice(db);
 		
 		System.out.println("Out createTables");
 		}
 		catch (SQLException e) { System.out.println("SQLException create"); }
 	}
 	
-
-	/*
-	protected void initializeAdverts(SQLiteDatabase db){
-		
-		ContentValues values = new ContentValues();
-		long nowtm = 0;
-		
-		Time tm = new Time();
-		tm.setToNow();
-		nowtm = tm.toMillis(true) / 1000;
-		
-        values.put(FLD_URLIMG, "/ads/kkat300x50.gif");
-        values.put(FLD_URLHREF, "http://hersheys.com/kitkat");
-        values.put(FLD_ADL_ID, 10);
-        values.put(FLD_CREATED_AT, nowtm);
-        
-        if (-1 == db.insert(TABLE_ADVERTS, null, values))
-			System.out.println("adverts insert error");
-        
-        values.put(FLD_URLIMG, "/ads/rover300x50.jpg");
-        values.put(FLD_URLHREF, "http://landrover.com/us/en/lr");
-        values.put(FLD_ADL_ID, 23);
-        
-        if (-1 == db.insert(TABLE_ADVERTS, null, values))
-			System.out.println("adverts insert error");
-	}
-	*/
-	
-	/*
-	protected void updateAdverts(){
-		
-		ContentValues values = new ContentValues();
-		String[] args = {"1"};
-		
-        values.put(FLD_URLIMG, "/ads/kkat300x50.gif");
-        values.put(FLD_URLHREF, "http://hersheys.com/kitkat");
-
-        
-        if (-1 == database.update(TABLE_ADVERTS, values, "id = ?", args))
-			System.out.println("adverts insert error");
-	}
-	
-	
-	*/
 	
 	protected void closeDb() {
 		database.close();
@@ -137,42 +108,79 @@ public class SQLHelper extends SQLiteOpenHelper {
 	}
 	
 	
-	
-	protected static String getads(String strt){
+	private static void initializeDevice(SQLiteDatabase db){
+		ContentValues values = new ContentValues();
 		
-		String msg = "{\"rtn\":false}";
+		System.out.println("nIn initialize Device");
+		values.put(FLD_TAG, HttpdService.getDroidId());
+        values.put(FLD_CREATED_AT, Util.getTimeNow());
+  
+        if (-1 == db.insert(TABLE_DEVICE, null, values)){
+        	System.out.println("device insert error");
+        }
+	}
+	
+	
+	protected static String getads(String start){
+		
+		String msg =  Util.JSONReturn(false);;
 		Cursor tmpCursor;
 		String[] args = new String[1];
 		
-
-		args[0] = strt;
+		args[0] = start;
+		
 		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_ADVERTS +
-				" WHERE status == 'A' AND id > ?", args);
+				" WHERE status = 'A' AND id > ? " + notInAd_List(), args);
 		
 		try {
-			List<String> jstr = new ArrayList<String>();		//Should be changed to JSONArry
-			JSONObject jsob = new JSONObject();
+			JSONArray jArray =  new JSONArray();
+			JSONObject jsob;
 		
 			if (tmpCursor.moveToFirst()){
 			
 				do {
+					jsob = new JSONObject();
 					System.out.println("get from DB id : "+tmpCursor.getInt(tmpCursor.getColumnIndex(FLD_ID)));
 					jsob.put(FLD_ID, tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID)));		
 					jsob.put(FLD_URLIMG, tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLIMG)));
 					jsob.put(FLD_URLHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLHREF)));
-					jstr.add(jsob.toString().replace("\\", ""));
+					jsob.put(FLD_ADTYPE,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_ADTYPE)));
+					jArray.put(jsob);
 					
 				} while(tmpCursor.moveToNext());
 			}
-			msg = jstr.toString();
+			msg = jArray.toString().replace("\\", "");
 		}	
 		catch(JSONException ex) {
 	        ex.printStackTrace();
 	    }
 		tmpCursor.close();
-//		System.out.println("getads arg 1 : "+strt);
-
 		return(msg);
+	}
+	
+	
+	private static String notInAd_List(){
+		Cursor tmpCursor;
+		String notin = " ";
+		Boolean trip = false;
+		
+		tmpCursor = database.rawQuery("SELECT id FROM " + TABLE_AD_LISTS, null);
+		
+			if (tmpCursor.moveToFirst()){
+				notin = " AND " + FLD_ID + " NOT IN ( ";
+				do {
+					if (trip) notin = notin + ", ";
+					trip = true;
+				
+					notin = notin + tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));		
+				} while(tmpCursor.moveToNext());
+				
+				notin = notin + " ) ";
+			}
+
+		tmpCursor.close();
+//		System.out.println("notin final : "+notin);
+		return(notin);
 	}
 	
 	
@@ -181,9 +189,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		JSONObject jsob;
 		
-		Time tm = new Time();
-		tm.setToNow();
-		long nowtm = tm.toMillis(true) / 1000;
+		long nowtm = Util.getTimeNow();
 		
 		if (null == database){
 			System.out.println("DB not  open");
@@ -199,6 +205,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 						
 				values.put(FLD_URLIMG, jsob.getString(FLD_URLIMG));
 		        values.put(FLD_URLHREF, jsob.getString(FLD_URLHREF));
+		        values.put(FLD_ADTYPE, jsob.getString(FLD_ADTYPE));
 		        values.put(FLD_ADL_ID, jsob.getLong(FLD_ID));
 		        values.put(FLD_CREATED_AT, nowtm);
 		        
@@ -230,11 +237,10 @@ public class SQLHelper extends SQLiteOpenHelper {
 				String urlimg;
 				long id;
 				
-		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_ADVERTS +
-				" WHERE status = 'P'", null);
+				tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_ADVERTS +
+						" WHERE status = 'P'", null);
 		
 			if (tmpCursor.moveToFirst()){
-			
 				do {
 					id = tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));
 					urlimg = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLIMG));
@@ -262,5 +268,134 @@ public class SQLHelper extends SQLiteOpenHelper {
         if (-1 == database.update(TABLE_ADVERTS, values, "id = ?", args))
 			System.out.println("advert status update error");
 		
+	}
+	
+	
+	
+	protected static String exclude(String tag, long advert_id){
+		
+		return(insertAd_List(tag, advert_id, 0));
+	}
+	
+	
+	protected static String keep(String tag, long advert_id){
+		
+		return(insertAd_List(tag, advert_id, 1));
+	}
+	
+	
+	private static String insertAd_List(String tag, long advert_id, int action){
+		
+		ContentValues values = new ContentValues();
+		String msg =  Util.JSONReturn(false);
+		long nowtm = Util.getTimeNow();
+		
+//		System.out.println("insertAd_List tag : "+tag+"   advert_id : " + advert_id);
+		
+		values.put(FLD_ADVERT_ID, advert_id);
+		values.put(FLD_ACTION, action);
+        values.put(FLD_CREATED_AT, nowtm);
+  
+        if (-1 != database.insert(TABLE_AD_LISTS, null, values)){
+        	msg =  Util.JSONReturn(true);
+        } else {
+        	System.out.println("ad_lists insert error");	
+        }
+		return(msg);
+	}
+	
+	
+	protected static String clearads(){
+		
+//		System.out.println("In clearads");
+		
+        if (-1 != database.delete(TABLE_AD_LISTS, null, null)){		//May not return -1 for error but doesnt matter
+        	return( Util.JSONReturn(true));
+        } else {
+        	System.out.println("ad_lists delete error");
+        	return(Util.JSONReturn(false));
+        }
+	}
+	
+	
+	protected static String get_instruct(){
+		Cursor tmpCursor;
+//		System.out.println("In get_instruct");
+		
+		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE +
+				" WHERE status = 'A' AND instruct_cnt >= 0", null);
+		
+		if (tmpCursor.moveToFirst()) {
+			set_instruct(tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_INSTRUCT_CNT)) + 1);
+			tmpCursor.close();
+			return(Util.JSONReturn(true));
+		} else {
+			tmpCursor.close();
+			return(Util.JSONReturn(false));
+		}
+	}
+	
+	
+	protected static String set_instruct(long cnt){
+		ContentValues values = new ContentValues();
+		int err;
+		 
+        values.put(FLD_INSTRUCT_CNT, cnt);
+        err = database.update(TABLE_DEVICE, values, "status = 'A'", null);
+        
+        if (-1 == err)
+			System.out.println("device update error");
+		
+		return(Util.JSONReturn(true));
+	}
+	
+	
+	protected static String get_kept_coupons(){
+		
+		return(getAdvertByType(FLD_ADTYPE_COUPON));
+	}
+	
+	
+	protected static String get_kept_ads(){
+		
+		return(getAdvertByType(FLD_ADTYPE_AD));
+	}
+	
+	
+protected static String getAdvertByType(String adtype){
+		
+		String msg =  Util.JSONReturn(false);;
+		Cursor tmpCursor;
+		String[] args = new String[1];
+		
+		args[0] = adtype;
+		
+		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_ADVERTS + " INNER JOIN " + TABLE_AD_LISTS +
+				" ON adverts.id = ad_lists.advert_id " +
+				" WHERE adverts.status = 'A' AND ad_lists.action = 1 AND adverts.adtype = ? ", args);
+		
+		try {
+			JSONObject jsob;
+			JSONArray jArray =  new JSONArray();
+			
+			if (tmpCursor.moveToFirst()){
+			
+				do {
+					jsob = new JSONObject();
+					System.out.println("get by adtype : "+adtype+"   id : "+tmpCursor.getInt(tmpCursor.getColumnIndex(FLD_ID)));
+					jsob.put(FLD_ID, tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID)));		
+					jsob.put(FLD_URLIMG, tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLIMG)));
+					jsob.put(FLD_URLHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLHREF)));
+					jArray.put(jsob);
+					
+				} while(tmpCursor.moveToNext());
+			}
+			msg = jArray.toString().replace("\\", "");
+		}	
+		catch(JSONException ex) {
+	        ex.printStackTrace();
+	    }
+		tmpCursor.close();
+		return(msg);
 	}
 }

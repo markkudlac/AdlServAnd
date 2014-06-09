@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">AdlServ</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="adserv">Ad Server</string>
     <string name="action_settings">Settings</string>
-
+	<string name="action_coupons">Vault</string>
 </resources>

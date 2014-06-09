@@ -7,13 +7,14 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.provider.Settings.Secure;
 
 
 public class HttpdService extends Service {
 
-	public static SimpleWebServer HttpdServ = null;
-	public static SQLHelper AdserverDb = null;
-	
+	private static SimpleWebServer HttpdServ = null;
+	private static SQLHelper AdserverDb = null;
+	private static String droidId = null;
 	
 	 public int onStartCommand(Intent intent, int flags, int startId) {
 		 
@@ -23,13 +24,15 @@ public class HttpdService extends Service {
 	 
 	@Override
 	public IBinder onBind(Intent intent) {
-		
-		System.out.println("In HttpdService onBind");
 	
+		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		System.out.println("In HttpdService onBind id : " + droidId);
+		
 	 	stopDb();
 	 	AdserverDb = new SQLHelper(this);
 //	 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
 	 	turnServerOn();		//Must be after database is open
+	 	
 	 	SystemClock.sleep(250);	 	
 		return new Binder();
 	}
@@ -99,5 +102,10 @@ public class HttpdService extends Service {
 			AdserverDb.closeDb();
 			AdserverDb = null;
 		}
+	}
+	
+	
+	public static String getDroidId(){
+		return(droidId);
 	}
 }

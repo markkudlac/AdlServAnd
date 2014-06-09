@@ -21,6 +21,7 @@ import static com.adserv.adladl.Const.*;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.format.Time;
 
 
 
@@ -185,4 +186,19 @@ public class Util {
     		}
     	}
      }
+     
+     
+     static public long getTimeNow(){
+    	 
+ 		Time tm = new Time();
+ 		tm.setToNow();
+ 		return(tm.toMillis(true) / 1000);
+     }
+     
+     
+     static public String JSONReturn(Boolean val){
+    	 
+    	 return("{\"rtn\":" + val + "}");
+     }
+     
 }

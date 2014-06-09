@@ -14,10 +14,33 @@ public class Routes {
 		
 		uri = trimUri(uri,API_PATH);
 
-		if (uri.indexOf("getads/") == 0){
-			uri = trimUri(uri,"getads/");
-			System.out.println("trimUri : "+uri);			
+		if (uri.indexOf(API_GETADS) == 0){
+			uri = trimUri(uri,API_GETADS);	
 			msg = SQLHelper.getads(getArg(uri, 1));
+			
+		} else if (uri.indexOf(API_EXCLUDE) == 0){
+			uri = trimUri(uri,API_EXCLUDE);	
+			msg = SQLHelper.exclude(getArg(uri, 0), Long.valueOf(getArg(uri, 1)).longValue());
+			
+		} else if (uri.indexOf(API_KEEP) == 0){
+			uri = trimUri(uri,API_KEEP);		
+			msg = SQLHelper.keep(getArg(uri, 0), Long.valueOf(getArg(uri, 1)).longValue());
+			
+		} else if (uri.indexOf(API_CLEARADS) == 0){		
+			msg = SQLHelper.clearads();
+			
+		} else if (uri.indexOf(API_GET_INSTRUCT) == 0){		
+			msg = SQLHelper.get_instruct();
+			
+		} else if (uri.indexOf(API_SET_INSTRUCT) == 0){
+			uri = trimUri(uri,API_SET_INSTRUCT);		
+			msg = SQLHelper.set_instruct(Long.valueOf(getArg(uri, 1)).longValue());
+			
+		} else if (uri.indexOf(API_GET_KEPT_COUPONS) == 0){		
+			msg = SQLHelper.get_kept_coupons();
+			
+		} else if (uri.indexOf(API_GET_KEPT_ADS) == 0){		
+			msg = SQLHelper.get_kept_ads();
 			
 		}
 		return(msg);
@@ -41,7 +64,7 @@ public class Routes {
 		
 		String xx = null;
 		int i = 0;
-		final Matcher matcher = Pattern.compile("(\\w+)").matcher(uri);
+		final Matcher matcher = Pattern.compile("(-?\\w+)").matcher(uri);
 		
 		while (matcher.find()) {
 			if (i == indx) {
