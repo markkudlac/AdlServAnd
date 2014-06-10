@@ -5,10 +5,12 @@ import static com.adserv.adladl.Const.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
+
 
 public class Routes {
 	
-	public static String callMethods(String uri){
+	public static String callMethods(String uri, Context context){
 
 		String msg = "{\"rtn\":false}";
 		
@@ -30,17 +32,20 @@ public class Routes {
 			msg = SQLHelper.clearads();
 			
 		} else if (uri.indexOf(API_GET_INSTRUCT) == 0){		
-			msg = SQLHelper.get_instruct();
+			msg = Prefs.get_instruct(context);
 			
 		} else if (uri.indexOf(API_SET_INSTRUCT) == 0){
 			uri = trimUri(uri,API_SET_INSTRUCT);		
-			msg = SQLHelper.set_instruct(Long.valueOf(getArg(uri, 1)).longValue());
+			msg = Prefs.set_instruct(context, Integer.valueOf(getArg(uri, 1)).intValue());
 			
 		} else if (uri.indexOf(API_GET_KEPT_COUPONS) == 0){		
 			msg = SQLHelper.get_kept_coupons();
 			
 		} else if (uri.indexOf(API_GET_KEPT_ADS) == 0){		
 			msg = SQLHelper.get_kept_ads();
+			
+		} else if (uri.indexOf(API_GETUPLOADDIR) == 0){		
+			msg = Prefs.getuploaddir(context);
 			
 		}
 		return(msg);

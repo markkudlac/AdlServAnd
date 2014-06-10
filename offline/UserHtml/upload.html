@@ -2,8 +2,8 @@
 <html>
 
 <head>
-	<script type="text/javascript" src="/FlSkHtml/js/jquery-1.10.0.min.js"></script>
-	<script type="text/javascript" src="/FlSkHtml/js/addressload.js"></script>
+	<script type="text/javascript" src="/AdlHtml/js/jquery-1.10.0.min.js"></script>
+	<script type="text/javascript" src="/AdlHtml/js/static.js"></script>
 </head>
 <body>
 
@@ -26,7 +26,16 @@ enctype="multipart/form-data">
 
 $(document).ready(function(){
 	
-	$('#hdtitle').text($('#hdtitle').text() + parseUri(window.location).host)
+	console.log("Doc ready");
+	initAjax();
+	
+	$.getJSON("/api/getuploaddir/",null,function(data){
+			if (data && data.rtn == undefined) { 
+				$('#hdtitle').text($('#hdtitle').text() + data.dir)
+			} else
+			{ console.log("getdownload data undefined")}
+		});
+	
 })
 </script>
 </body>

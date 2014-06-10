@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>   
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  
+    <CheckBoxPreference
+        android:key="@string/ipaddress"
+        android:title="@string/ipaddress"
+        android:defaultValue="false"/>
+    
+    <ListPreference 
+    android:key="@string/uploadto"
+    android:title="@string/uploadto"
+    android:entries="@array/uploadto_array"
+    android:entryValues="@array/uploadto_array"/>
+	
+</PreferenceScreen>
+

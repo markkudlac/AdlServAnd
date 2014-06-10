@@ -3,11 +3,13 @@ package com.adserv.adladl;
 
 import fi.iki.elonen.SimpleWebServer;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.Settings.Secure;
+import android.widget.Toast;
 
 
 public class HttpdService extends Service {
@@ -31,7 +33,7 @@ public class HttpdService extends Service {
 	 	stopDb();
 	 	AdserverDb = new SQLHelper(this);
 //	 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
-	 	turnServerOn();		//Must be after database is open
+	 	turnServerOn(this);		//Must be after database is open
 	 	
 	 	SystemClock.sleep(250);	 	
 		return new Binder();
@@ -54,8 +56,7 @@ public class HttpdService extends Service {
 
 		try {
 			stopHttpdServer();
-//			System.out.println("get Files Dir  : " + getFilesDir());
-			HttpdServ = new SimpleWebServer(ipadd, httpdPort, getFilesDir());
+			HttpdServ = new SimpleWebServer(ipadd, httpdPort, getFilesDir(), this);
 			HttpdServ.start();
 			System.out.println("HttpdServ started Add : " + ipadd + "  Port : "
 					+ httpdPort);
@@ -79,17 +80,19 @@ public class HttpdService extends Service {
 	}
 	
 	
-	public void turnServerOn() {
+	public  void turnServerOn(final Context ctx) {
 
 			new Thread(new Runnable() {
 				public void run() {
 					try {
-						startHttpdServer(8080, "localhost");
 //						startHttpdServer(8080, "192.168.1.108");
+						String ipad = Util.getHTTPAddress(ctx);
+
+						startHttpdServer(8080, ipad);
+						
 					} catch (Exception ex) {
 						System.out.println("Select thread exception : " + ex);
 					}
-
 				}
 			}).start();
 	}

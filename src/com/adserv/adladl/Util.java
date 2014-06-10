@@ -9,8 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 
+import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 
 import org.kamranzafar.jtar.TarEntry;
@@ -201,4 +205,42 @@ public class Util {
     	 return("{\"rtn\":" + val + "}");
      }
      
+     
+     static	public String getWifiApIpAddress() {
+    		
+ 	    try {
+ 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); 
+ 	        		en.hasMoreElements();) {
+ 	        	
+ 	            NetworkInterface intf = en.nextElement();
+ 	            
+ 	            if (intf.getName().contains("wlan") || intf.getName().contains("eth0")) {
+ 	                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+ 	                        .hasMoreElements();) {
+ 	                    InetAddress inetAddress = enumIpAddr.nextElement();
+ 	                    if (!inetAddress.isLoopbackAddress()
+ 	                            && (inetAddress.getAddress().length == 4)) {
+// 	                    	System.out.println("AP address : " + inetAddress.getHostAddress());
+ 	                        return inetAddress.getHostAddress();
+ 	                    }
+ 	                }
+ 	            }
+ 	        }
+ 	    } catch (SocketException ex) {
+ 	    	System.out.println("AP exception : " + ex);
+ 	    }
+ 	    return null;
+ 	}
+     
+     
+     static public String getHTTPAddress(Context context){
+    	 
+    	 String ipad = "localhost";
+    	 
+    	 if (Prefs.getIPaddress(context)){
+			ipad = Util.getWifiApIpAddress();
+			 
+    	 } 
+    	 return(ipad);
+     }
 }

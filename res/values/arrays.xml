@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="uploadto_array">
+        <item>"UserHtml"</item>
+        <item>"AdlHtml"</item>
+        <item>"AdlHtml/js"</item>
+		<item>"AdlHtml/img"</item>
+    </string-array>
+</resources>

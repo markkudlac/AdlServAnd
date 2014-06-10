@@ -64,7 +64,6 @@ public class SQLHelper extends SQLiteOpenHelper {
 				"create table " + TABLE_DEVICE +" ( " +
 				FLD_ID + " integer primary key autoincrement, " +
 				FLD_TAG + " text, " +
-				FLD_INSTRUCT_CNT + " integer default 0, " +
 				FLD_STATUS + " char(1) default \'A\', " +
 				FLD_CREATED_AT + " integer default 0, " +
 				FLD_UPDATED_AT + " integer default 0" +
@@ -318,6 +317,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 	}
 	
 	
+/*
 	protected static String get_instruct(){
 		Cursor tmpCursor;
 //		System.out.println("In get_instruct");
@@ -348,6 +348,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 		
 		return(Util.JSONReturn(true));
 	}
+*/
 	
 	
 	protected static String get_kept_coupons(){

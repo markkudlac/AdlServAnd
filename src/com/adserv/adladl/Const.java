@@ -22,6 +22,11 @@ public interface Const extends BaseColumns {
 	public static final String API_GET_KEPT_COUPONS = "get_kept_coupons/";
 	public static final String API_GET_KEPT_ADS = "get_kept_ads/";
 	
+	public static final String API_GETUPLOADDIR = "getuploaddir/";
+	
+	
+	public static final String INSTRUCTCNT = "com.adserv.adladl.instructcnt";
+	
 	public static final String DB_NAME = "adserver";
 	public static final String FLD_ID = "id";
 	public static final String FLD_STATUS = "status";
@@ -31,7 +36,6 @@ public interface Const extends BaseColumns {
 	
 	public static final String TABLE_DEVICE = "device";
 	public static final String FLD_TAG= "tag";
-	public static final String FLD_INSTRUCT_CNT = "instruct_cnt";
 
 	public static final String TABLE_AD_LISTS = "ad_lists";
 	public static final String FLD_ADVERT_ID = "advert_id";

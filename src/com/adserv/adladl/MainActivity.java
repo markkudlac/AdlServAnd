@@ -1,20 +1,25 @@
 package com.adserv.adladl;
 
 import com.adserv.adladl.HttpCom;
-import com.adserv.adladl.R;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings.Secure;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -33,9 +38,35 @@ public class MainActivity extends Activity {
 		}
 		
 		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		Intent intent = new Intent();
+		intent.setClassName("com.adserv.adladl", "com.adserv.adladl.HttpdService");
+		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		startService(intent);
+		
+//		((TextView) findViewById(R.id.ipaddress)).setText(
+//				"Upload To : "+Prefs.getUploadDir(this));
+		
+		Toast.makeText(getBaseContext(), "Upload To : "+Prefs.getUploadDir(this) ,
+				Toast.LENGTH_LONG).show();
 	}
 
-	
+	private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+        	System.out.println("onServiceConnected in adlserv");
+        	
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        	System.out.println("onServiceDisConnect in adlserv");
+        }
+    };
+    
+    
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -52,6 +83,7 @@ public class MainActivity extends Activity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			toSettings(item);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -70,6 +102,10 @@ public class MainActivity extends Activity {
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
 					false);
+			
+			((TextView) rootView.findViewById(R.id.ipaddress)).setText(
+					"HTTP : "+ Util.getHTTPAddress(container.getContext()));
+					
 			return rootView;
 		}
 	}
@@ -96,6 +132,15 @@ public class MainActivity extends Activity {
 	}
 
 	
+	public void toSettings(MenuItem item) {
+		
+		System.out.println("In Settings ");
+		
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);
+	}
+
+
 	public void click(View view) {
 		int id = view.getId();
 
@@ -118,4 +163,6 @@ public class MainActivity extends Activity {
 			return;
 		}
 	}
+	
+
 }

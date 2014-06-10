@@ -14,6 +14,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import android.content.Context;
+
+import com.adserv.adladl.Prefs;
 import com.adserv.adladl.Routes;
 
 import static com.adserv.adladl.Const.USERHTML_DIR;
@@ -54,10 +57,12 @@ public class SimpleWebServer extends NanoHTTPD {
 
  
     private File rootDir;
-
-    public SimpleWebServer(String host, int port, File wwwroot) {
+    private Context context;
+    
+    public SimpleWebServer(String host, int port, File wwwroot, Context context) {
         super(host, port);
         this.rootDir = wwwroot;
+        this.context = context;
     }
 
     public File getRootDir() {
@@ -96,7 +101,7 @@ public class SimpleWebServer extends NanoHTTPD {
         	String msg;
         	
  //       	System.out.println("uri has api");
-        	msg = Routes.callMethods(uri);
+        	msg = Routes.callMethods(uri, context);
         	
         	res = new Response(msg);
         } else if (!homeDir.isDirectory())
@@ -306,8 +311,12 @@ public class SimpleWebServer extends NanoHTTPD {
     	try {
     		byte [] xbuf = new byte[BASE_BLOCKSIZE];  
     		File fl_dest;
-
-    		fl_dest = new File(rootDir, USERHTML_DIR + "/"+dest);
+    		String upld = Prefs.getUploadDir(context) + "/" + dest;
+System.out.println("Dest path : "+upld);
+    		fl_dest = new File(rootDir, upld);
+    		if (fl_dest.exists()){
+    			fl_dest.delete();
+    		}
     		fl_dest.createNewFile();
     		// Copy contents of temp over to files
     		
