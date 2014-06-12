@@ -99,9 +99,28 @@ public class Prefs extends PreferenceFragment implements OnSharedPreferenceChang
 	}
 	
 	
+	public static void setDownloadTime(Context context, long time) {
+
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		prefs.edit().putLong(UPLOADTIME, time)
+				.commit();
+	}
+
+	
+	public static long getDownloadTime(Context context) {
+
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		return prefs.getLong(UPLOADTIME, 0); 
+	}
+	
+	
 	protected static String getuploaddir(Context context){
 
-		System.out.println("In getuploaddir");
+//		System.out.println("In getuploaddir");
 		
 			return("{\"dir\":\"" + getUploadDir(context) + "\"}");
 

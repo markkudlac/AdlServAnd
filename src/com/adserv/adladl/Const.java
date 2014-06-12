@@ -23,9 +23,11 @@ public interface Const extends BaseColumns {
 	public static final String API_GET_KEPT_ADS = "get_kept_ads/";
 	
 	public static final String API_GETUPLOADDIR = "getuploaddir/";
-	
+	public static final long DOWNLOAD_POLL = 1000*3600*4;
+	public static final long CONNECT_DELAY = 1000*10;
 	
 	public static final String INSTRUCTCNT = "com.adserv.adladl.instructcnt";
+	public static final String UPLOADTIME = "com.adserv.adladl.uploadtime";
 	
 	public static final String DB_NAME = "adserver";
 	public static final String FLD_ID = "id";

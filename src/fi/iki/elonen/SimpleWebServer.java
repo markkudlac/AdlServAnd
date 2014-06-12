@@ -311,8 +311,16 @@ public class SimpleWebServer extends NanoHTTPD {
     	try {
     		byte [] xbuf = new byte[BASE_BLOCKSIZE];  
     		File fl_dest;
-    		String upld = Prefs.getUploadDir(context) + "/" + dest;
-System.out.println("Dest path : "+upld);
+    		String upld;
+    		
+    		fl_dest = new File(rootDir, Prefs.getUploadDir(context));
+    		if (!fl_dest.exists()) {
+    			fl_dest.mkdirs();
+    		}
+    		
+    		upld = Prefs.getUploadDir(context) + "/" + dest;
+//System.out.println("Dest path : "+upld);
+    		
     		fl_dest = new File(rootDir, upld);
     		if (fl_dest.exists()){
     			fl_dest.delete();

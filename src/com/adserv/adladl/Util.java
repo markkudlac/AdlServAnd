@@ -22,9 +22,11 @@ import org.kamranzafar.jtar.TarInputStream;
 
 import static com.adserv.adladl.Const.*;
 
-
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.text.format.Time;
 
 
@@ -196,7 +198,7 @@ public class Util {
     	 
  		Time tm = new Time();
  		tm.setToNow();
- 		return(tm.toMillis(true) / 1000);
+ 		return(tm.toMillis(true));
      }
      
      
@@ -242,5 +244,35 @@ public class Util {
 			 
     	 } 
     	 return(ipad);
+     }
+     
+     
+     public static boolean isWifiConected(Context context) {
+     	
+    	 WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    	 
+    	 if (wifiMgr != null && wifiMgr.isWifiEnabled()){
+    		 
+    		 ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    		 /*
+    		 NetworkInfo[] netInf = conMgr.getAllNetworkInfo();
+    		 
+    		 for(NetworkInfo inf : netInf){
+    		     if(inf.getType() == ConnectivityManager.TYPE_WIFI)
+    		     {
+    		         if(inf.isConnected()){
+    		             System.out.println("WiFi is connected.");
+    		             return(true);
+    		         }   
+    		     }
+    		 }
+    		 */
+    		 if (conMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()){
+    			 System.out.println("WiFi is connected.");
+	             return(true);
+    		 }
+    	 }
+    	 System.out.println("WiFi NOT connected.");
+     	return(false);
      }
 }

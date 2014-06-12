@@ -75,8 +75,8 @@ public class HttpCom extends AsyncTask<String, Void, String>{
  //				System.out.println("id of 0 : "+ jArray.getJSONObject(0).getBoolean("rtn"));
  				
  				try {
- 					Method meth = SQLHelper.class.getDeclaredMethod(funcHandle, JSONArray.class);
- 					meth.invoke(null, jArray);
+ 					Method meth = SQLHelper.class.getDeclaredMethod(funcHandle, JSONArray.class, Context.class);
+ 					meth.invoke(null, jArray, context);
  				}
  				catch(Exception ex) {
     		        ex.printStackTrace();

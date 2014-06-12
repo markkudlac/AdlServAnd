@@ -183,7 +183,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 	}
 	
 	
-	public static void storeAds(JSONArray ads){
+	public static void storeAds(JSONArray ads, Context context){
 		
 		ContentValues values = new ContentValues();
 		JSONObject jsob;
@@ -219,11 +219,14 @@ public class SQLHelper extends SQLiteOpenHelper {
 		        if (rows == 0 && -1 == database.insert(TABLE_ADVERTS, null, values))
 					System.out.println("adverts insert error");	
 			}
+			
+			getAdImg();
+			Prefs.setDownloadTime(context, Util.getTimeNow());
 		}
 		catch(JSONException ex) {
 		       ex.printStackTrace();
 		}
-		getAdImg();
+		
 	}
 	
 	

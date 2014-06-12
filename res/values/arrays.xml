@@ -4,6 +4,7 @@
         <item>"UserHtml"</item>
         <item>"AdlHtml"</item>
         <item>"AdlHtml/js"</item>
+		<item>"AdlHtml/pages"</item>
 		<item>"AdlHtml/img"</item>
     </string-array>
 </resources>
