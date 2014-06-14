@@ -14,10 +14,10 @@ public interface Const extends BaseColumns {
 	public static final String USERHTML_DIR = "UserHtml";
 	
 	public static final String API_GETADS = "getads/";
-	public static final String API_CLEARADS = "clearads/";
+	public static final String API_CLEARADS = "clearads";
 	public static final String API_EXCLUDE = "exclude/";
 	public static final String API_KEEP = "keep/";
-	public static final String API_GET_INSTRUCT = "get_instruct/";
+	public static final String API_GET_INSTRUCT = "get_instruct";
 	public static final String API_SET_INSTRUCT = "set_instruct/";
 	public static final String API_GET_KEPT_COUPONS = "get_kept_coupons/";
 	public static final String API_GET_KEPT_ADS = "get_kept_ads/";

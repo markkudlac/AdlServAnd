@@ -18,15 +18,15 @@ public class Routes {
 
 		if (uri.indexOf(API_GETADS) == 0){
 			uri = trimUri(uri,API_GETADS);	
-			msg = SQLHelper.getads(getArg(uri, 1));
+			msg = SQLHelper.getads(getArg(uri, 0));
 			
 		} else if (uri.indexOf(API_EXCLUDE) == 0){
 			uri = trimUri(uri,API_EXCLUDE);	
-			msg = SQLHelper.exclude(getArg(uri, 0), Long.valueOf(getArg(uri, 1)).longValue());
+			msg = SQLHelper.exclude(getArg(uri, 0), Long.valueOf(getArg(uri, 0)).longValue());
 			
 		} else if (uri.indexOf(API_KEEP) == 0){
 			uri = trimUri(uri,API_KEEP);		
-			msg = SQLHelper.keep(getArg(uri, 0), Long.valueOf(getArg(uri, 1)).longValue());
+			msg = SQLHelper.keep(getArg(uri, 0), Long.valueOf(getArg(uri, 0)).longValue());
 			
 		} else if (uri.indexOf(API_CLEARADS) == 0){		
 			msg = SQLHelper.clearads();
@@ -36,7 +36,7 @@ public class Routes {
 			
 		} else if (uri.indexOf(API_SET_INSTRUCT) == 0){
 			uri = trimUri(uri,API_SET_INSTRUCT);		
-			msg = Prefs.set_instruct(context, Integer.valueOf(getArg(uri, 1)).intValue());
+			msg = Prefs.set_instruct(context, Integer.valueOf(getArg(uri, 0)).intValue());
 			
 		} else if (uri.indexOf(API_GET_KEPT_COUPONS) == 0){		
 			msg = SQLHelper.get_kept_coupons();

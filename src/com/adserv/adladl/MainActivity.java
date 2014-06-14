@@ -43,9 +43,6 @@ public class MainActivity extends Activity {
 		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 		startService(intent);
 		
-//		((TextView) findViewById(R.id.ipaddress)).setText(
-//				"Upload To : "+Prefs.getUploadDir(this));
-		
 		Toast.makeText(getBaseContext(), "Upload To : "+Prefs.getUploadDir(this) ,
 				Toast.LENGTH_LONG).show();
 	}
@@ -128,7 +125,7 @@ public class MainActivity extends Activity {
 		super.onDestroy();
 
 		System.out.println("In DESTROY");
-
+		unbindService(mConnection);
 	}
 
 	

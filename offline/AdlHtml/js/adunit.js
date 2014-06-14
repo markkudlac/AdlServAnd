@@ -1,7 +1,8 @@
 /* Manage the adunit in offline*/
 
-var devicetag = "mark";
+//var devicetag = "mark";
 var prizemode = false;
+var app_reg = "";
 
 var admarker = 0;
 var timer = null;
@@ -13,11 +14,15 @@ var tapnhold = false; //This is used to resolve conflict of tap and taphold
 
 function beginads(){
 	
-	console.log("Begin ads");
+//	console.log("Begin ads params : "+window.location);
 	
+	var params = getSearchParameters();
+	prizemode = (params.prize.indexOf("p") == 0);
+	app_reg = params.app_reg;
+
 	initAjax();
 	$("#checkinst").one("change",instructClear)
-	getAds(devicetag, admarker);
+	getAds(admarker);
 
 }
 
@@ -78,7 +83,7 @@ function appendAds(data){
 			'<div data-role="content" style="padding: 0px">'+
 				'<a target="_blank" href="' + data[i].urlhref +
 				'"><img src="' + data[i].urlimg + 
-				'"/> </a></div></div>')
+				'"/><img src="img/adlauncher.png" class="adlauncher" /></a></div></div>')
 
 				xel.page({ defaults: true })
 				setEvents(xel)
@@ -163,7 +168,7 @@ xhref = $(this).find('a').attr("href")
 				
 				tapnhold = true;
 				console.log("tap and hold event")
-//				window.open("localhost:8080/coupons/" + devicetag,"_blank")
+//				window.open("localhost:8080/coupons/","_blank")
 				window.jsinterface.vault();
 				if (!activePrize()){
 					beginAdScrolling();
@@ -250,7 +255,7 @@ function manageAd(jqobj, action){
 	adid = extractPgId(jqobj)
 		
 	jqobj.remove()
-	$.getJSON("/api/"+ action + "/" + devicetag + "/" + 
+	$.getJSON("/api/"+ action + "/" + 
 		adid, null, function(data){
 			if (!data || !data.rtn) {
 				alert("Db error")
@@ -290,7 +295,7 @@ function beginPrize(prizesel){
 function scrollPrize(){
 	var xobj;
 	
-	console.log("In scrollPrixe cnt : "+prizecnt)
+//	console.log("In scrollPrixe cnt : "+prizecnt)
 
 		$("#adltext").text("Swipe Right to Cancel")
 
@@ -346,10 +351,13 @@ function cancelPrize(){
 
 function clearads(){
 
-	$.getJSON("/api/clearads/" + devicetag,null,function(data){
+	$.getJSON("/api/clearads",null,function(data){
 		if (data && data.rtn == true) {
-			 console.log("ads cleared") 
-			 getAds(devicetag , admarker);
+			 console.log("ads cleared")
+			 
+			 haltAdScrolling();
+			 $(":mobile-pagecontainer").remove(".adfind");
+			 getAds(admarker);
 	 	} else {
 			console.log("clear ads failed")
 		}
@@ -400,6 +408,23 @@ function instructMess(cnt){
 }
 
 
+function getSearchParameters() {
+      var prmstr = window.location.search.substr(1);
+      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+}
+
+function transformToAssocArray( prmstr ) {
+    var params = {};
+    var prmarr = prmstr.split("&");
+    for ( var i = 0; i < prmarr.length; i++) {
+        var tmparr = prmarr[i].split("=");
+        params[tmparr[0]] = tmparr[1];
+    }
+    return params;
+}
+
+
+
 function instructClear(){
 	$.mobile.loading("show")
 	instructSet(-1);
@@ -409,7 +434,7 @@ function instructClear(){
 
 function instructSet(cnt){
 	
-	$.getJSON("/api/set_instruct/" + devicetag + "/"+cnt,null,function(data){
+	$.getJSON("/api/set_instruct/" + "/"+cnt,null,function(data){
 		if (data && data.rtn == true) {
 //			 console.log("Instruction stopped") 
 	 	} 
@@ -419,7 +444,7 @@ function instructSet(cnt){
 
 function instructNeeded(){
 	
-	$.getJSON("/api/get_instruct/" + devicetag,null,function(data){
+	$.getJSON("/api/get_instruct",null,function(data){
 		if (data && data.rtn == true) {
 			 instructflg = 1
 	 	} else {

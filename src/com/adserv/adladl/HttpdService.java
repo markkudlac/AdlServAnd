@@ -41,9 +41,7 @@ public class HttpdService extends Service {
 		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 		System.out.println("In HttpdService onBind id : " + droidId);
 		
-	 	stopDb();
-	 	AdserverDb = new SQLHelper(this);
-//	 	new HttpCom(this, "storeAds").execute("getads/nexusS/0");
+		startdb();
 	 	turnServerOn(this);		//Must be after database is open
 	 	
 	 	SystemClock.sleep(250);
@@ -116,7 +114,12 @@ public class HttpdService extends Service {
 	}
 	
 	
-	
+	private void startdb(){
+		stopDb();
+		AdserverDb = new SQLHelper(this);
+	}
+
+
 	private void stopDb(){
 		
 		if (AdserverDb != null){

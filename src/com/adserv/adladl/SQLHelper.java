@@ -163,7 +163,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 		String notin = " ";
 		Boolean trip = false;
 		
-		tmpCursor = database.rawQuery("SELECT id FROM " + TABLE_AD_LISTS, null);
+		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_AD_LISTS, null);
 		
 			if (tmpCursor.moveToFirst()){
 				notin = " AND " + FLD_ID + " NOT IN ( ";
@@ -171,14 +171,14 @@ public class SQLHelper extends SQLiteOpenHelper {
 					if (trip) notin = notin + ", ";
 					trip = true;
 				
-					notin = notin + tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));		
+					notin = notin + tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ADVERT_ID));		
 				} while(tmpCursor.moveToNext());
 				
 				notin = notin + " ) ";
 			}
 
 		tmpCursor.close();
-//		System.out.println("notin final : "+notin);
+		System.out.println("notin final : "+notin);
 		return(notin);
 	}
 	
@@ -311,12 +311,9 @@ public class SQLHelper extends SQLiteOpenHelper {
 		
 //		System.out.println("In clearads");
 		
-        if (-1 != database.delete(TABLE_AD_LISTS, null, null)){		//May not return -1 for error but doesnt matter
-        	return( Util.JSONReturn(true));
-        } else {
-        	System.out.println("ad_lists delete error");
-        	return(Util.JSONReturn(false));
-        }
+        database.delete(TABLE_AD_LISTS, null, null);
+        return( Util.JSONReturn(true));
+
 	}
 	
 	

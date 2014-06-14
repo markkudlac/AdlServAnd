@@ -29,8 +29,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.text.format.Time;
 
-
-
 public class Util {
 
 	 static   void DeleteRecursive(File fileOrDirectory) {
