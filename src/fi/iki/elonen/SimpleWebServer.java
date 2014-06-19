@@ -18,9 +18,8 @@ import android.content.Context;
 
 import com.adserv.adladl.Prefs;
 import com.adserv.adladl.Routes;
+import static com.adserv.adladl.Const.*;
 
-import static com.adserv.adladl.Const.USERHTML_DIR;
-import static com.adserv.adladl.Const.BASE_BLOCKSIZE;
 
 public class SimpleWebServer extends NanoHTTPD {
     /**
@@ -94,14 +93,16 @@ public class SimpleWebServer extends NanoHTTPD {
     /**
      * Serves file from homeDir and its' subdirectories (only). Uses only URI, ignores all headers and HTTP parameters.
      */
-    public Response serveFile(String uri, Map<String, String> header, File homeDir) {
+    public Response serveFile(String uri, Map<String, String> header, String qryString, File homeDir) {
         Response res = null;
 
-        if (uri.indexOf("/api/") == 0){
+ //       System.out.println("uri in serveFile : "+uri);
+        
+        if (uri.indexOf(API_PATH) == 0 || uri.endsWith(FORMUPLOAD)){
         	String msg;
         	
  //       	System.out.println("uri has api");
-        	msg = Routes.callMethods(uri, context);
+        	msg = Routes.callMethods(uri, qryString, context);
         	
         	res = new Response(msg);
         } else if (!homeDir.isDirectory())
@@ -271,26 +272,33 @@ public class SimpleWebServer extends NanoHTTPD {
     @Override
     public Response serve(String uri, Method method, Map<String, String> header, Map<String, String> parms, Map<String, String> files) {
         String filename = null;
+        String qryString = "";
+//        boolean formup_flg = false;
     	
     	System.out.println(method + " '" + uri + "' ");
-
+//    	formup_flg = uri.endsWith(FORMUPLOAD);
+    	
+    	
         Iterator<String> e = header.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
- //           System.out.println("  HDR: '" + value + "' = '" + header.get(value) + "'");
+//            System.out.println("  HDR: '" + value + "' = '" + header.get(value) + "'");
         }
         e = parms.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
-//            System.out.println("  PRM: '" + value + "' = '" + parms.get(value) + "'");
+ //           System.out.println("  PRM: '" + value + "' = '" + parms.get(value) + "'");
             if (value.equals("file")) {
             	filename = parms.get(value);
+            } else if (value.equals(QUERY_STRING_PARAMETER)){
+            	qryString = parms.get(value);
+            	System.out.println("Param string : "+ qryString);
             }
         }
         e = files.keySet().iterator();
         while (e.hasNext()) {
             String value = e.next();
-//            System.out.println("  UPLOADED: '" + value + "' = '" + files.get(value) + "'");
+ //           System.out.println("  UPLOADED: '" + value + "' = '" + files.get(value) + "'");
             
       //Added for transfer of upload files. This should be reviewed later
             
@@ -299,7 +307,7 @@ public class SimpleWebServer extends NanoHTTPD {
             }
         }
 
-        return serveFile(uri, header, getRootDir());
+        return serveFile(uri, header, qryString, getRootDir());
     }
 
     

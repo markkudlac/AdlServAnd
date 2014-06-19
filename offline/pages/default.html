@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Default Local</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+	<link rel="stylesheet" href="/AdlHtml/css/jquery.mobile-1.4.2.min.css" />
+	
+	<script type="text/javascript" src="/AdlHtml/js/jquery-1.10.0.min.js"></script>
+	<script type="text/javascript" src="/AdlHtml/js/jqrymobinit.js"></script>
+	<script type="text/javascript" src="/AdlHtml/js/jquery.mobile-1.4.2.min.js"></script>
+
+	<script type="text/javascript" src="/AdlHtml/js/static.js"></script>
+	
+<!--
+	<script type="text/javascript" src="js/coupons.js"></script>
+	-->
+</head>
+
+<body>
+	<div id="localform" data-role="page">
+		<div data-role="header" data-position="fixed">
+			<h1>Default Local</h1>
+		</div>
+		
+		<div  data-role="none">   
+			<form action="formupload" method="get" style="margin: 20px 20px" data-ajax="false"
+			target="dump">
+			<label for="fname">First Name:</label>
+				<input type="text" name="firstname" id="fname" />
+				
+				<label for="email">Email:</label>
+				<input type="text" name="email" id="email" />
+				<input type="submit" value="Submit" />
+			</form>
+			<iframe id="rtnmess" name="dump" style="display: none">
+			</iframe>
+		</div>
+		<div data-role="footer" class="ui-bar" data-position="fixed">
+			<a href="#" data-theme="b">Notification</a>
+
+		  </div>
+	</div>
+		
+	
+	<script>
+
+	$(document).ready(function(){
+	
+		console.log("Document ready Default Local")
+//		begincoupons();
+
+	$('#rtnmess').on('load', submitMess);
+
+	})
+
+
+	function submitMess(){
+	
+		if ($("#rtnmess").contents().text().length > 1) {
+			alert("Form sent successfully");
+			$("#rtnmess").contents().text("");
+		}
+	}
+	</script
+</body>
+</html>		
+		
+	

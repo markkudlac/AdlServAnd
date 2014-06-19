@@ -252,25 +252,13 @@ public class Util {
     	 if (wifiMgr != null && wifiMgr.isWifiEnabled()){
     		 
     		 ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    		 /*
-    		 NetworkInfo[] netInf = conMgr.getAllNetworkInfo();
-    		 
-    		 for(NetworkInfo inf : netInf){
-    		     if(inf.getType() == ConnectivityManager.TYPE_WIFI)
-    		     {
-    		         if(inf.isConnected()){
-    		             System.out.println("WiFi is connected.");
-    		             return(true);
-    		         }   
-    		     }
-    		 }
-    		 */
+ 
     		 if (conMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()){
-    			 System.out.println("WiFi is connected.");
+ //   			 System.out.println("WiFi is connected.");
 	             return(true);
     		 }
     	 }
-    	 System.out.println("WiFi NOT connected.");
+ //   	 System.out.println("WiFi NOT connected.");
      	return(false);
      }
 }

@@ -12,6 +12,8 @@ public interface Const extends BaseColumns {
 	public static final String HTTP_PROT = "http";
 	public static final String HTML_DIR = "AdlHtml";
 	public static final String USERHTML_DIR = "UserHtml";
+	public static final String PAGES_DIR = "pages";
+	public static final String FORMUPLOAD = "formupload";
 	
 	public static final String API_GETADS = "getads/";
 	public static final String API_CLEARADS = "clearads";
@@ -51,6 +53,11 @@ public interface Const extends BaseColumns {
 		public static final String FLD_ADTYPE_AD = "AD";
 	public static final String FLD_URLIMG = "urlimg";
 	public static final String FLD_URLHREF = "urlhref";
+	public static final String FLD_LOCALHREF = "localhref";
+		public static final String FLD_LOCALHREF_DEF = "/"+PAGES_DIR + "/default.html";
 	public static final String FLD_ADL_ID = "adl_id";
 	
+	public static final String TABLE_UPLOADS = "uploads";
+	public static final String FLD_CALL_METHOD = "call_method";
+	public static final String FLD_PARAMS = "params";
 }

@@ -13,12 +13,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteException;
 import android.database.SQLException;
+import android.os.SystemClock;
 
 
 public class SQLHelper extends SQLiteOpenHelper {
 
 	private static SQLiteDatabase database = null;
 	private static Context srvcontext;
+	private static boolean uploadAllow = true;
 	
 	public SQLHelper(Context context) {
 		
@@ -66,7 +68,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 				FLD_TAG + " text, " +
 				FLD_STATUS + " char(1) default \'A\', " +
 				FLD_CREATED_AT + " integer default 0, " +
-				FLD_UPDATED_AT + " integer default 0" +
+				FLD_UPDATED_AT + " integer default 0 " +
 				")"
 			);
 		
@@ -76,7 +78,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 				FLD_ADVERT_ID + " integer default 0 unique, " +
 				FLD_ACTION + " integer default 0, " +
 				FLD_CREATED_AT + " integer default 0, " +
-				FLD_UPDATED_AT + " integer default 0" +
+				FLD_UPDATED_AT + " integer default 0 " +
 				")"
 			);
 		
@@ -87,9 +89,22 @@ public class SQLHelper extends SQLiteOpenHelper {
 				FLD_ADTYPE + " char(2) default \'" + FLD_ADTYPE_AD + "\', " +
 				FLD_URLIMG + " text, " +
 				FLD_URLHREF + " text, " +
+				FLD_LOCALHREF + " text default \'" + FLD_LOCALHREF_DEF + "\', " +
 				FLD_ADL_ID + " integer not null unique, " +		//This should generate index
 				FLD_STATUS + " char(1) default \'P\', " +
-				FLD_CREATED_AT + " integer " +
+				FLD_CREATED_AT + " integer default 0 " +
+				")"
+			);
+		
+		
+		db.execSQL(
+				"create table " + TABLE_UPLOADS +" ( " +
+				FLD_ID + " integer primary key autoincrement, " +
+				FLD_CALL_METHOD + " text not null, " +
+				FLD_PARAMS + " text not null, " +
+				FLD_STATUS + " char(1) default \'P\', " +
+				FLD_CREATED_AT + " integer default 0, " +
+				FLD_UPDATED_AT + " integer default 0 " +
 				")"
 			);
 		
@@ -143,9 +158,11 @@ public class SQLHelper extends SQLiteOpenHelper {
 					jsob.put(FLD_ID, tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID)));		
 					jsob.put(FLD_URLIMG, tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLIMG)));
 					jsob.put(FLD_URLHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLHREF)));
+					jsob.put(FLD_LOCALHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_LOCALHREF)));
 					jsob.put(FLD_ADTYPE,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_ADTYPE)));
 					jArray.put(jsob);
 					
+					System.out.println( FLD_LOCALHREF + " is : "+tmpCursor.getString(tmpCursor.getColumnIndex(FLD_LOCALHREF)) );
 				} while(tmpCursor.moveToNext());
 			}
 			msg = jArray.toString().replace("\\", "");
@@ -212,6 +229,12 @@ public class SQLHelper extends SQLiteOpenHelper {
 //		        System.out.println( FLD_CREATED_AT + " is : "+ values.getAsLong(FLD_CREATED_AT));
 //		        System.out.println( FLD_URLHREF + " is : "+ values.getAsString(FLD_URLHREF));
 //		        System.out.println( FLD_URLIMG + " is : "+ values.getAsString(FLD_URLIMG));
+		
+		        // ONLY FOR TESTING  +++++++++++
+		        
+		        if (values.getAsString(FLD_URLIMG).indexOf("kkat") >0){
+		        	values.put(FLD_LOCALHREF, "/pages/kitkat/landvid.html");
+		        }
 		        
 		        args[0] = values.getAsString(FLD_ADL_ID);
 		        rows = database.update(TABLE_ADVERTS, values, FLD_ADL_ID + " = ?", args);
@@ -387,6 +410,7 @@ protected static String getAdvertByType(String adtype){
 					jsob.put(FLD_ID, tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID)));		
 					jsob.put(FLD_URLIMG, tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLIMG)));
 					jsob.put(FLD_URLHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_URLHREF)));
+					jsob.put(FLD_LOCALHREF,tmpCursor.getString(tmpCursor.getColumnIndex(FLD_LOCALHREF)));
 					jArray.put(jsob);
 					
 				} while(tmpCursor.moveToNext());
@@ -398,5 +422,125 @@ protected static String getAdvertByType(String adtype){
 	    }
 		tmpCursor.close();
 		return(msg);
+	}
+
+
+	protected static String formupload(String qryString){
+		
+		ContentValues values = new ContentValues();
+		String msg =  Util.JSONReturn(false);
+		long nowtm = Util.getTimeNow();
+		
+		System.out.println("insert uploadForm qryString : "+qryString);
+		
+		values.put(FLD_CALL_METHOD, FORMUPLOAD);
+		values.put(FLD_PARAMS, qryString);
+        values.put(FLD_CREATED_AT, nowtm);
+  
+        if (-1 != database.insert(TABLE_UPLOADS, null, values)){
+        	msg =  Util.JSONReturn(true);
+        } else {
+        	System.out.println("formupload insert error");	
+        }
+		return(msg);
+	}
+
+	
+	protected static void uploadToAdladl(){
+			
+		System.out.println("In uploadToAdladl 1");
+		
+		if (!uploadAllow || database == null) {
+			return;
+		} else {
+			uploadAllow = false;
+		}
+		
+		
+		new Thread(new Runnable() {
+			public void run() {
+				
+				Cursor tmpCursor;		
+				String params, cmethod;
+				long id;
+				int i;
+				
+				tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_UPLOADS +
+						" WHERE status = 'P'", null);
+				
+				System.out.println("In uploadToAdladl 2");
+				try {
+			if (tmpCursor.moveToFirst()){
+				
+				i = 0;
+				while (i < 15 && !Util.isWifiConected(srvcontext)){
+					++i;
+					System.out.println("In uploadToAdladl sleep cnt : "+i);
+					Thread.sleep(3000);
+				}
+				
+				do {
+					
+					id = tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));
+					cmethod = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_CALL_METHOD));
+					params = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_PARAMS));
+					System.out.println("UPLOAD  : "+cmethod+"?"+params);
+	
+					new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&id="+id);
+					
+					Thread.sleep(500);
+				} while(tmpCursor.moveToNext());
+			}
+			System.out.println("In uploadToAdladl 3 before sleep");
+			Thread.sleep(3000);
+			}
+			catch (InterruptedException ex) {
+				uploadAllow = true;
+				}
+				
+			tmpCursor.close();
+			uploadAllow = true;
+			System.out.println("Out uploadToAdladl");
+			}
+		}).start();
+	}
+	
+	
+	public static void uploadDone(JSONArray ads, Context context){
+		
+		ContentValues values = new ContentValues();
+		JSONObject jsob;
+		
+		System.out.println("In uploadDone");
+		
+		if (null == database){
+			System.out.println("DB not  open");
+			return;
+		}
+		
+		 values.put(FLD_STATUS, "D");
+		 values.put(FLD_UPDATED_AT, Util.getTimeNow());
+		 
+		try {
+			int i;
+			String[] args = new String[1];
+			
+			for (i=0; i<ads.length(); i++){
+				jsob = ads.getJSONObject(i);
+						
+				args[0] = jsob.getString(FLD_ID);
+				
+				System.out.println("update uploads with this id : " + args[0]);
+		        if (-1 == database.update(TABLE_UPLOADS, values, "id = ?", args))
+					System.out.println("advert status update error");
+			}
+		}
+		catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+
+       
+        
+
 	}
 }

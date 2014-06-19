@@ -18,26 +18,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
 
-	static private String droidId = null;
+	static private HttpdService mBoundService = null;
+	static private MainActivity mnact;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+			mnact = this;
+			
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		
-		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+//		droidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 		Intent intent = new Intent();
 		intent.setClassName("com.adserv.adladl", "com.adserv.adladl.HttpdService");
 		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -54,6 +56,9 @@ public class MainActivity extends Activity {
                 IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
         	System.out.println("onServiceConnected in adlserv");
+        	
+        	mBoundService = ((HttpdService.LocalBinder)service).getService();
+        	
         	
         }
 
@@ -126,6 +131,7 @@ public class MainActivity extends Activity {
 
 		System.out.println("In DESTROY");
 		unbindService(mConnection);
+		mBoundService = null;
 	}
 
 	
@@ -146,11 +152,11 @@ public class MainActivity extends Activity {
 		
 		switch (id) {
 		case R.id.testbut:
-
-			
-		 	new SQLHelper(this);
-		 	new HttpCom(this, "storeAds").execute("getads/"+droidId+"/0");
-
+			if (mBoundService != null){
+				mBoundService.tester();
+			} else {
+				System.out.println("Failed: mBoundService is null");
+			}
 			return;
 			
 		case R.id.vaultbut:
@@ -161,5 +167,13 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-
+	public static void resetHttpdServerService(){
+		
+		if (mBoundService != null){
+			mBoundService.resetHttpdServer();
+	       	((TextView)mnact.findViewById(R.id.ipaddress)).setText(
+						"HTTP : "+ Util.getHTTPAddress(mnact));
+		}
+	}
+	
 }

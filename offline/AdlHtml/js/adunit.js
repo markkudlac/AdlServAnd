@@ -17,9 +17,15 @@ function beginads(){
 //	console.log("Begin ads params : "+window.location);
 	
 	var params = getSearchParameters();
-	prizemode = (params.prize.indexOf("p") == 0);
-	app_reg = params.app_reg;
-
+	
+	if (typeof params.prize !== 'undefined') {
+		prizemode = (params.prize == "p");
+	}
+	
+	if (typeof params.app_reg !== 'undefined') {
+		app_reg = params.app_reg;
+	}
+		
 	initAjax();
 	$("#checkinst").one("change",instructClear)
 	getAds(admarker);
@@ -78,11 +84,12 @@ function appendAds(data){
 	if (data == undefined) return;
 	
 	for (i=0; i<data.length; i++){
+console.log("localhref from jason : "+data[i].localhref);
 
 		xel = $('<div id="pg'+data[i].id+'" data-role="page" class="adfind">'+
 			'<div data-role="content" style="padding: 0px">'+
 				'<a target="_blank" href="' + data[i].urlhref +
-				'"><img src="' + data[i].urlimg + 
+				'" localhref="'+data[i].localhref+'"><img src="' + data[i].urlimg + 
 				'"/><img src="img/adlauncher.png" class="adlauncher" /></a></div></div>')
 
 				xel.page({ defaults: true })
@@ -154,7 +161,13 @@ function setEvents(jqryobj){
 		 
 		 .tap(function(event){
 				event.preventDefault()
-xhref = $(this).find('a').attr("href")
+				
+				if (typeof window.jsinterface === 'undefined' || 
+						window.jsinterface.localHref()) {
+					xhref = $(this).find('a').attr("localhref")
+				} else {
+					xhref = $(this).find('a').attr("href")
+				}
 				console.log("tap event : "+xhref)
 				if (!tapnhold) {
 					window.open(xhref, "_blank")
@@ -452,3 +465,4 @@ function instructNeeded(){
 		}
 	});
 }
+

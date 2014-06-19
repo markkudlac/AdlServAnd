@@ -51,9 +51,10 @@ public class HttpdService extends Service {
 	 	{	 	
 	 		netReceiver = new NetChangeReceiver();
 		 	turnDownloadOn(this, droidId, netReceiver);		//This needs to come from DB someday
+		 	netReceiver.register(this);
 	 	}
 	 	
-		return new Binder();
+		return new LocalBinder();
 	}
 
 	
@@ -100,6 +101,7 @@ public class HttpdService extends Service {
 	
 	public  void turnServerOn(final Context ctx) {
 
+			stopHttpdServer();
 			new Thread(new Runnable() {
 				public void run() {
 					try {
@@ -146,7 +148,8 @@ public class HttpdService extends Service {
    				 downloadThread.interrupt();
    			 }
    		 }
-
+   		 
+   		SQLHelper.uploadToAdladl();
    	 }
    	 
 
@@ -196,7 +199,7 @@ public class HttpdService extends Service {
 						Thread.sleep(timer);
 						
 						if (regwifi) {
-							netreceiver.register(context);
+		//					netreceiver.register(context);
 							regwifi = false;
 						}
 					}
@@ -214,6 +217,28 @@ public class HttpdService extends Service {
 		downloadThread.start();
 	}
 }
+	
+	
+	 public class LocalBinder extends Binder {
+	        HttpdService getService() {
+	            return HttpdService.this;
+	        }
+	        
+	    	
+	    }
 
-
+	 
+	 public void resetHttpdServer(){
+ 		
+ 		stopHttpdServer();
+ 		turnServerOn(this);
+ 	}
+	 
+	 
+	 public void tester(){
+		 
+		 System.out.println("This is tester service call");
+		 
+		 SQLHelper.uploadToAdladl();
+	 }
 }

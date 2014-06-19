@@ -6,6 +6,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.widget.TextView;
 
 import static com.adserv.adladl.Const.*;
 
@@ -33,12 +34,14 @@ public class Prefs extends PreferenceFragment implements OnSharedPreferenceChang
      
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     	
- //       if (key.equals(getResources().getString(R.string.prizemode))) {
+        if (key.equals(getResources().getString(R.string.ipaddress))) {
         	
+        	MainActivity.resetHttpdServerService();
+ 
  //           boolean pmode = sharedPreferences.getBoolean(key, false);
  //           System.out.println("In SettingsActivity Prizemode : "+pmode);
   //          MainActivity.changePrizeMode();
- //       }
+        }
     }
     
     public static boolean getIPaddress(Context context) {
