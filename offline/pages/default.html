@@ -14,9 +14,6 @@
 
 	<script type="text/javascript" src="/AdlHtml/js/static.js"></script>
 	
-<!--
-	<script type="text/javascript" src="js/coupons.js"></script>
-	-->
 </head>
 
 <body>
@@ -39,7 +36,8 @@
 			</iframe>
 		</div>
 		<div data-role="footer" class="ui-bar" data-position="fixed">
-			<a href="#" data-theme="b">Notification</a>
+<!--			<a id="notify" href="#" data-theme="b">Notification</a> -->
+			<input id="notify" type="button" value="Notification" data-inline="true">
 
 		  </div>
 	</div>
@@ -50,10 +48,11 @@
 	$(document).ready(function(){
 	
 		console.log("Document ready Default Local")
-//		begincoupons();
 
-	$('#rtnmess').on('load', submitMess);
-
+		initAjax();
+	
+		$('#rtnmess').on('load', submitMess);
+		$("#notify").on("vclick", sendNotification);
 	})
 
 
@@ -63,6 +62,19 @@
 			alert("Form sent successfully");
 			$("#rtnmess").contents().text("");
 		}
+	}
+	
+	
+	function sendNotification(){
+		console.log("Send Notification")
+		
+			$.getJSON("/api/notify", "mess=This is mess&url=http://www.adladl.com",function(data){
+			if (data && data.rtn == true) {
+				alert("Notification sent") 
+			} else { 
+				console.log("getAds data undefined")
+			}
+		});
 	}
 	</script
 </body>

@@ -5,7 +5,10 @@ import static com.adserv.adladl.Const.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.content.Context;
+
 
 
 public class Routes {
@@ -52,6 +55,21 @@ public class Routes {
 			
 			} else if (uri.indexOf(API_GETUPLOADDIR) == 0){		
 				msg = Prefs.getuploaddir(context);
+				
+			} else if (uri.indexOf(API_NOTIFY) == 0){
+				JSONObject jsob;
+				
+				jsob = Util.qryStringToJSON(qryString);
+				
+				try {
+					if (jsob != null) {
+						Util.sendNotofication(context, jsob.getString("url") , jsob.getString("mess"));
+					}
+					msg = Util.JSONReturn(true);
+				}
+				catch(JSONException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 		return(msg);

@@ -175,7 +175,7 @@ function setEvents(jqryobj){
 					tapnhold=false
 				}
 		 })
-		 
+/*		 
 		.taphold(function(event) {  
 				event.preventDefault()
 				
@@ -187,7 +187,7 @@ function setEvents(jqryobj){
 					beginAdScrolling();
 				}
 		 })
-		 
+	*/	 
 		 .on("vmousedown", function(event){
 			 event.preventDefault()
 			 haltAdScrolling()

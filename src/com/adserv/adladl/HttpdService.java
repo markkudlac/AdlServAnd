@@ -1,6 +1,5 @@
 package com.adserv.adladl;
 
-
 import fi.iki.elonen.SimpleWebServer;
 
 import static com.adserv.adladl.Const.*;
@@ -18,14 +17,14 @@ import android.provider.Settings.Secure;
 import android.widget.Toast;
 
 
-
 public class HttpdService extends Service {
 
 	private static SimpleWebServer HttpdServ = null;
 	private static SQLHelper AdserverDb = null;
-	private static String droidId = null;
+	private static String droidId;
 	private static NetChangeReceiver netReceiver = null;
 	private static Thread downloadThread = null;
+	private static boolean interuptAllow = false;
 	
 //	private static boolean tstflg = true;
 	
@@ -50,7 +49,7 @@ public class HttpdService extends Service {
 	 	if (netReceiver == null)
 	 	{	 	
 	 		netReceiver = new NetChangeReceiver();
-		 	turnDownloadOn(this, droidId, netReceiver);		//This needs to come from DB someday
+		 	turnAdlComOn(this, droidId);		//This needs to come from DB someday
 		 	netReceiver.register(this);
 	 	}
 	 	
@@ -141,15 +140,10 @@ public class HttpdService extends Service {
    	 public void onReceive( Context context, Intent intent ) {
    		 System.out.println("Inside Broadcast Reciever");
 
-   		 if ( downloadThread != null && !downloadThread.isInterrupted()){
- //  			 System.out.println("downloadThread interupt sent");
-   			 
-   			 if (Util.getTimeNow() - Prefs.getDownloadTime(context) > DOWNLOAD_POLL){
-   				 downloadThread.interrupt();
-   			 }
+   		 if ( interuptAllow && downloadThread != null && !downloadThread.isInterrupted()){
+   			 System.out.println("downloadThread interupt sent");
+   			downloadThread.interrupt();
    		 }
-   		 
-   		SQLHelper.uploadToAdladl();
    	 }
    	 
 
@@ -163,68 +157,56 @@ public class HttpdService extends Service {
  	}
  
     
-	public  void turnDownloadOn(final Context context, final String deviceId,
-			final NetChangeReceiver netreceiver) {
+	public  void turnAdlComOn(final Context context, final String deviceId) {
 
 	if (downloadThread == null) {
 		downloadThread = new Thread(new Runnable() {
 			public void run() {
-				long timer = 0;
-				long lastinterupt = Util.getTimeNow();
 				int attempts = 0;
-				boolean regwifi = true;
 				
 				while (true) {
 					System.out.println("downloadThread running");
-					
+					interuptAllow = false;
 				try {
-						if (Util.getTimeNow() - Prefs.getDownloadTime(context) > DOWNLOAD_POLL){
-							if (Util.isWifiConected(context))  {
-								new HttpCom(context, "storeAds").execute("getads/"+deviceId+"/0");
-								timer = CONNECT_DELAY * 10;
-							} else {
-								timer = timer + CONNECT_DELAY;
-							}
-						
+						attempts = 0;
+						while (attempts < 20 && !Util.isWifiConected(context)) {
+//							System.out.println("Delay loop : "+attempts);
+							Thread.sleep(CONNECT_DELAY);
 							++attempts;
-							if (attempts > 20){
-								attempts = 0;
-								timer = DOWNLOAD_POLL;
-							}
-						} else {
-							attempts = 0;
-							timer = DOWNLOAD_POLL;
+						}
+						attempts = 0;
+				
+						if (Util.isWifiConected(context) &&
+							Util.getTimeNow() - Prefs.getDownloadTime(context) >= POLL_DELAY){
+							
+							new HttpCom(context, "storeAds").execute("getads/"+deviceId+"/0");
+//							Prefs.setDownloadTime is called in storeAds on completion
 						}
 						
-						Thread.sleep(timer);
-						
-						if (regwifi) {
-		//					netreceiver.register(context);
-							regwifi = false;
+						if (Util.isWifiConected(context)){
+							SQLHelper.uploadToAdladl();
 						}
+						
+						interuptAllow = true;
+						Thread.sleep(POLL_DELAY + (120*1000));
 					}
-				 catch (InterruptedException ex) {
-					 if (Util.getTimeNow() - lastinterupt > CONNECT_DELAY){
-						 lastinterupt = Util.getTimeNow();
-						 timer = 0;
-						 attempts = 0;
-					 }
-					System.out.println("downloadThread exception/interupt caught : " + ex);
-				}
+				 	catch (InterruptedException ex) {
+				 		interuptAllow = false;
+				 		attempts = 0;
+				 		System.out.println("downloadThread exception/interupt caught : " + ex);
+				 	}
 				}
 			}
 		});
 		downloadThread.start();
 	}
-}
+	}
 	
 	
 	 public class LocalBinder extends Binder {
 	        HttpdService getService() {
 	            return HttpdService.this;
 	        }
-	        
-	    	
 	    }
 
 	 
@@ -239,6 +221,8 @@ public class HttpdService extends Service {
 		 
 		 System.out.println("This is tester service call");
 		 
-		 SQLHelper.uploadToAdladl();
+//		 SQLHelper.uploadToAdladl();
+//		 SQLHelper.testDone();
+		 Util.sendNotofication(this, "http://www.adladl.com", "Visit Adladl");
 	 }
 }

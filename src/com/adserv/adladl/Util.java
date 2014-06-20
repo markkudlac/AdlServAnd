@@ -17,16 +17,24 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarInputStream;
 
 import static com.adserv.adladl.Const.*;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.Time;
 
 public class Util {
@@ -245,6 +253,28 @@ public class Util {
      }
      
      
+     static public JSONObject qryStringToJSON(String qryString){
+    	 
+			String xstr;
+			JSONObject jsob = null;
+			
+			xstr = "{\""+Uri.decode(qryString)+"\"}";
+			
+			xstr = xstr.replace("&", "\", \"");
+			xstr = xstr.replace("=", "\":\"");
+			System.out.println("JSON string : "+xstr);
+			
+			try {
+				jsob = new JSONObject(xstr);
+			}	
+				catch(JSONException ex) {
+					ex.printStackTrace();
+		    }
+			
+			return(jsob);
+     }
+     
+     
      public static boolean isWifiConected(Context context) {
      	
     	 WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -260,5 +290,30 @@ public class Util {
     	 }
  //   	 System.out.println("WiFi NOT connected.");
      	return(false);
+     }
+     
+
+     public static void sendNotofication(Context context,String url, String mess){
+    	 
+    	    Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+    	     PendingIntent pendingIntent = PendingIntent.getActivity(
+    	            context, 
+    	            0, 
+    	            myIntent, 
+    	            Intent.FLAG_ACTIVITY_NEW_TASK);
+    	     
+    	     Notification myNotification = new NotificationCompat.Builder(context)
+    	       .setContentTitle("Link to Site")
+    	       .setContentText(mess)
+    	       .setWhen(System.currentTimeMillis())
+    	       .setContentIntent(pendingIntent)
+    	       .setDefaults(Notification.DEFAULT_SOUND)
+    	       .setAutoCancel(true)
+    	       .setSmallIcon(R.drawable.ic_launcher)
+    	       .build();
+    	     
+    	     NotificationManager notificationManager = 
+    	       (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+    	     notificationManager.notify(199, myNotification);
      }
 }

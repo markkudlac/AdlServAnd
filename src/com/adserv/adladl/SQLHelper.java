@@ -20,7 +20,6 @@ public class SQLHelper extends SQLiteOpenHelper {
 
 	private static SQLiteDatabase database = null;
 	private static Context srvcontext;
-	private static boolean uploadAllow = true;
 	
 	public SQLHelper(Context context) {
 		
@@ -447,40 +446,23 @@ protected static String getAdvertByType(String adtype){
 
 	
 	protected static void uploadToAdladl(){
-			
+
+		Cursor tmpCursor;		
+		String params, cmethod;
+		long id;
+		
 		System.out.println("In uploadToAdladl 1");
 		
-		if (!uploadAllow || database == null) {
+		if  (database == null) {
 			return;
-		} else {
-			uploadAllow = false;
 		}
 		
-		
-		new Thread(new Runnable() {
-			public void run() {
-				
-				Cursor tmpCursor;		
-				String params, cmethod;
-				long id;
-				int i;
-				
-				tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_UPLOADS +
+		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_UPLOADS +
 						" WHERE status = 'P'", null);
 				
-				System.out.println("In uploadToAdladl 2");
-				try {
-			if (tmpCursor.moveToFirst()){
+		if (tmpCursor.moveToFirst()){
 				
-				i = 0;
-				while (i < 15 && !Util.isWifiConected(srvcontext)){
-					++i;
-					System.out.println("In uploadToAdladl sleep cnt : "+i);
-					Thread.sleep(3000);
-				}
-				
-				do {
-					
+			do {	
 					id = tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));
 					cmethod = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_CALL_METHOD));
 					params = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_PARAMS));
@@ -488,21 +470,12 @@ protected static String getAdvertByType(String adtype){
 	
 					new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&id="+id);
 					
-					Thread.sleep(500);
+					SystemClock.sleep(500);
 				} while(tmpCursor.moveToNext());
-			}
-			System.out.println("In uploadToAdladl 3 before sleep");
-			Thread.sleep(3000);
-			}
-			catch (InterruptedException ex) {
-				uploadAllow = true;
-				}
-				
-			tmpCursor.close();
-			uploadAllow = true;
-			System.out.println("Out uploadToAdladl");
-			}
-		}).start();
+		}
+			
+		System.out.println("Out uploadToAdladl");
+		tmpCursor.close();
 	}
 	
 	
@@ -537,10 +510,31 @@ protected static String getAdvertByType(String adtype){
 		}
 		catch(JSONException ex) {
 			ex.printStackTrace();
-		}
-
-       
-        
-
+		} 
 	}
+	
+	
+	public static void testDone(){
+		int i;
+		ContentValues values = new ContentValues();
+		
+		System.out.println("In testDone");
+		
+		if (null == database){		//TESTING ***********
+			System.out.println("DB not  open");
+			return;
+		}
+		
+		 values.put(FLD_STATUS, "P");
+		 values.put(FLD_UPDATED_AT, Util.getTimeNow());
+		 
+			String[] args = new String[1];
+						
+				args[0] = "3";
+				
+				System.out.println("update uploads with this id : " + args[0]);
+		        i = database.update(TABLE_UPLOADS, values, "id = ?", args);
+					System.out.println("Update uploads count : "+i);
+		}
+		
 }
