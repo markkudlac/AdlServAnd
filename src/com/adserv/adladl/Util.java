@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kamranzafar.jtar.TarEntry;
@@ -30,12 +31,15 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.Time;
+import android.util.Base64;
 
 public class Util {
 
@@ -293,27 +297,42 @@ public class Util {
      }
      
 
-     public static void sendNotofication(Context context,String url, String mess){
+     public static void sendNotofication(Context context, JSONObject item){
     	 
-    	    Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+	     try {
+	    	 
+    	    Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getString(FLD_URLHREF)));
     	     PendingIntent pendingIntent = PendingIntent.getActivity(
     	            context, 
     	            0, 
     	            myIntent, 
-    	            Intent.FLAG_ACTIVITY_NEW_TASK);
+    	            Intent.FLAG_ACTIVITY_NEW_TASK);   
+    	     
+    	     byte[] imageAsBytes = Base64.decode(item.getString("icon"), Base64.DEFAULT);
+    	     
+ //   	     Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.adladla72x72);
+    	     Bitmap largeIcon = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length );
     	     
     	     Notification myNotification = new NotificationCompat.Builder(context)
-    	       .setContentTitle("Link to Site")
-    	       .setContentText(mess)
+    	       .setContentTitle("Your Followup Request")
+    	       .setContentText(item.getString("descript"))
     	       .setWhen(System.currentTimeMillis())
     	       .setContentIntent(pendingIntent)
     	       .setDefaults(Notification.DEFAULT_SOUND)
     	       .setAutoCancel(true)
-    	       .setSmallIcon(R.drawable.ic_launcher)
+    	       .setSmallIcon(R.drawable.adladla72x72)
+  //  	       .setSmallIcon(R.drawable.ic_launcher)
+    	       .setLargeIcon(largeIcon)
     	       .build();
     	     
     	     NotificationManager notificationManager = 
     	       (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-    	     notificationManager.notify(199, myNotification);
+    	     notificationManager.notify(item.getInt(FLD_ADVERT_ID), myNotification);
+
+    	     SQLHelper.uploadDone(new JSONArray().put(item), context);
+     	}
+		catch(JSONException ex) {
+			ex.printStackTrace();
+		}
      }
 }

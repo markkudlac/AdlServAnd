@@ -20,7 +20,7 @@ public class Routes {
 		System.out.println("Route : "+uri + " qryString : "+qryString);
 		
 		if (uri.endsWith(FORMUPLOAD)){		//This should be first - for forms
-			msg = SQLHelper.formupload(qryString);
+			msg = SQLHelper.itemSpool(qryString, FORMUPLOAD);
 		} else {
 			
 			uri = trimUri(uri,API_PATH);
@@ -57,19 +57,8 @@ public class Routes {
 				msg = Prefs.getuploaddir(context);
 				
 			} else if (uri.indexOf(API_NOTIFY) == 0){
-				JSONObject jsob;
-				
-				jsob = Util.qryStringToJSON(qryString);
-				
-				try {
-					if (jsob != null) {
-						Util.sendNotofication(context, jsob.getString("url") , jsob.getString("mess"));
-					}
-					msg = Util.JSONReturn(true);
-				}
-				catch(JSONException ex) {
-					ex.printStackTrace();
-				}
+
+				msg = SQLHelper.itemSpool(qryString, API_NOTIFY);
 			}
 		}
 		return(msg);

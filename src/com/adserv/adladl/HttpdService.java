@@ -169,7 +169,7 @@ public class HttpdService extends Service {
 					interuptAllow = false;
 				try {
 						attempts = 0;
-						while (attempts < 20 && !Util.isWifiConected(context)) {
+						while (attempts < CONNECT_ATTEMPTS && !Util.isWifiConected(context)) {
 //							System.out.println("Delay loop : "+attempts);
 							Thread.sleep(CONNECT_DELAY);
 							++attempts;
@@ -181,14 +181,17 @@ public class HttpdService extends Service {
 							
 							new HttpCom(context, "storeAds").execute("getads/"+deviceId+"/0");
 //							Prefs.setDownloadTime is called in storeAds on completion
+							Thread.sleep(CONNECT_DELAY * 2);	//Pause to let receiver settle
 						}
 						
 						if (Util.isWifiConected(context)){
 							SQLHelper.uploadToAdladl();
 						}
 						
+						Thread.sleep(CONNECT_DELAY * 2);	//Pause to let receiver settle
+						
 						interuptAllow = true;
-						Thread.sleep(POLL_DELAY + (120*1000));
+						Thread.sleep(POLL_DELAY + (CONNECT_DELAY * CONNECT_ATTEMPTS));
 					}
 				 	catch (InterruptedException ex) {
 				 		interuptAllow = false;
@@ -223,6 +226,7 @@ public class HttpdService extends Service {
 		 
 //		 SQLHelper.uploadToAdladl();
 //		 SQLHelper.testDone();
-		 Util.sendNotofication(this, "http://www.adladl.com", "Visit Adladl");
+//		 Util.sendNotofication(this, "http://www.adladl.com", "Visit Adladl");
+		 SQLHelper.itemSpool(FLD_ADVERT_ID+"=4", API_NOTIFY);
 	 }
 }

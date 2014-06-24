@@ -2,9 +2,9 @@
 
 //var devicetag = "mark";
 var prizemode = false;
-var app_reg = "";
+var app_reg = "apregcode";
 
-var admarker = 0;
+var admarker = 0;		//This is temporary
 var timer = null;
 var prizetimer = null;
 var prizecnt = 0;
@@ -19,7 +19,8 @@ function beginads(){
 	var params = getSearchParameters();
 	
 	if (typeof params.prize !== 'undefined') {
-		prizemode = (params.prize == "p");
+		prizemode = (params.prize == "true");
+//		console.log("Prizemode flag is : "+prizemode)
 	}
 	
 	if (typeof params.app_reg !== 'undefined') {
@@ -66,10 +67,10 @@ function haltPrizeScrolling(){
 }
 
 
-function getAds(device, ad){
+function getAds(adblock){
 	
 	if (!activePrize()){
-		$.getJSON("/api/getads/" + device + "/" + ad,null,function(data){
+		$.getJSON("/api/getads/" + adblock,null,function(data){
 			if (data && data.rtn == undefined) { appendAds(data) } else
 			{ console.log("getAds data undefined")}
 		});
@@ -84,11 +85,12 @@ function appendAds(data){
 	if (data == undefined) return;
 	
 	for (i=0; i<data.length; i++){
-console.log("localhref from jason : "+data[i].localhref);
+//console.log("advertid : "+data[i].id);
 
 		xel = $('<div id="pg'+data[i].id+'" data-role="page" class="adfind">'+
 			'<div data-role="content" style="padding: 0px">'+
-				'<a target="_blank" href="' + data[i].urlhref +
+				'<a target="_blank" href="' + data[i].urlhref + '" advert_id="' +
+				data[i].id +
 				'" localhref="'+data[i].localhref+'"><img src="' + data[i].urlimg + 
 				'"/><img src="img/adlauncher.png" class="adlauncher" /></a></div></div>')
 
@@ -165,6 +167,8 @@ function setEvents(jqryobj){
 				if (typeof window.jsinterface === 'undefined' || 
 						window.jsinterface.localHref()) {
 					xhref = $(this).find('a').attr("localhref")
+					xhref = xhref + "?advert_id="+$(this).find("a").attr("advert_id")
+					xhref = xhref + "&urlimg=" + $(this).find('img:first').attr("src")
 				} else {
 					xhref = $(this).find('a').attr("href")
 				}
@@ -403,7 +407,7 @@ function instructMess(cnt){
 		$(":mobile-pagecontainer").pagecontainer("change",
 		 $("#adlmess"), {transition: "slide"});
 	 } else if (cnt  == 3){
-		$("#adltext2").text("Tap and hold for vault")
+		$("#adltext2").text("Use Adladl app for store")
 		
 		$(":mobile-pagecontainer").pagecontainer("change",
 		 $("#adlmess2"), {transition: "slidedown"});
@@ -423,6 +427,7 @@ function instructMess(cnt){
 
 function getSearchParameters() {
       var prmstr = window.location.search.substr(1);
+//			console.log("Search params : "+prmstr)
       return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
 }
 

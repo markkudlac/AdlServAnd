@@ -339,39 +339,6 @@ public class SQLHelper extends SQLiteOpenHelper {
 	}
 	
 	
-/*
-	protected static String get_instruct(){
-		Cursor tmpCursor;
-//		System.out.println("In get_instruct");
-		
-		tmpCursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE +
-				" WHERE status = 'A' AND instruct_cnt >= 0", null);
-		
-		if (tmpCursor.moveToFirst()) {
-			set_instruct(tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_INSTRUCT_CNT)) + 1);
-			tmpCursor.close();
-			return(Util.JSONReturn(true));
-		} else {
-			tmpCursor.close();
-			return(Util.JSONReturn(false));
-		}
-	}
-	
-	
-	protected static String set_instruct(long cnt){
-		ContentValues values = new ContentValues();
-		int err;
-		 
-        values.put(FLD_INSTRUCT_CNT, cnt);
-        err = database.update(TABLE_DEVICE, values, "status = 'A'", null);
-        
-        if (-1 == err)
-			System.out.println("device update error");
-		
-		return(Util.JSONReturn(true));
-	}
-*/
-	
 	
 	protected static String get_kept_coupons(){
 		
@@ -424,7 +391,7 @@ protected static String getAdvertByType(String adtype){
 	}
 
 
-	protected static String formupload(String qryString){
+	protected static String itemSpool(String qryString, String call_method){
 		
 		ContentValues values = new ContentValues();
 		String msg =  Util.JSONReturn(false);
@@ -432,7 +399,7 @@ protected static String getAdvertByType(String adtype){
 		
 		System.out.println("insert uploadForm qryString : "+qryString);
 		
-		values.put(FLD_CALL_METHOD, FORMUPLOAD);
+		values.put(FLD_CALL_METHOD, call_method);
 		values.put(FLD_PARAMS, qryString);
         values.put(FLD_CREATED_AT, nowtm);
   
@@ -447,9 +414,9 @@ protected static String getAdvertByType(String adtype){
 	
 	protected static void uploadToAdladl(){
 
-		Cursor tmpCursor;		
+		Cursor tmpCursor, adCursor;		
 		String params, cmethod;
-		long id;
+		long uploads_id;
 		
 		System.out.println("In uploadToAdladl 1");
 		
@@ -463,13 +430,52 @@ protected static String getAdvertByType(String adtype){
 		if (tmpCursor.moveToFirst()){
 				
 			do {	
-					id = tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));
+					uploads_id = tmpCursor.getLong(tmpCursor.getColumnIndex(FLD_ID));
 					cmethod = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_CALL_METHOD));
 					params = tmpCursor.getString(tmpCursor.getColumnIndex(FLD_PARAMS));
+					
 					System.out.println("UPLOAD  : "+cmethod+"?"+params);
 	
-					new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&id="+id);
-					
+					if (cmethod.equals(API_NOTIFY)) {
+						adCursor = null;
+						JSONObject item = Util.qryStringToJSON(params);
+						
+						try{
+							String xsel = "SELECT * FROM " + TABLE_ADVERTS +
+									" WHERE " + FLD_ID + " = '" + item.getString(FLD_ADVERT_ID) + "'";
+							System.out.println("xsel  : "+xsel);
+							
+							adCursor = database.rawQuery(xsel, null);
+							if (adCursor.moveToFirst()){
+								/*
+								item.put(FLD_ID, id);
+								item.put(FLD_URLHREF, adCursor.getString(adCursor.getColumnIndex(FLD_URLHREF)));
+								item.put(FLD_NOTIFY_TEXT, "This Landrover message");
+								*/
+
+								new HttpCom(srvcontext,"fillNotify").execute("fillnotify/"+
+										adCursor.getString(adCursor.getColumnIndex(FLD_ADL_ID))+"/"+
+												uploads_id);
+							} else {
+								System.out.println("DBerror could not fins advert id : " + item.getString(FLD_ADVERT_ID));
+								item = null;
+							}
+							
+						}
+						catch(JSONException ex) {
+							
+							ex.printStackTrace();
+						}
+						adCursor.close();
+/*						
+						System.out.println("In uploadToAdladl : "+ API_NOTIFY);
+						if (item != null) {
+							Util.sendNotofication(srvcontext, item);
+						}
+		*/
+					} else {
+						new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&id="+uploads_id);
+					}
 					SystemClock.sleep(500);
 				} while(tmpCursor.moveToNext());
 		}
@@ -501,7 +507,7 @@ protected static String getAdvertByType(String adtype){
 			for (i=0; i<ads.length(); i++){
 				jsob = ads.getJSONObject(i);
 						
-				args[0] = jsob.getString(FLD_ID);
+				args[0] = jsob.getString(UPLOADS_ID);
 				
 				System.out.println("update uploads with this id : " + args[0]);
 		        if (-1 == database.update(TABLE_UPLOADS, values, "id = ?", args))
@@ -536,5 +542,28 @@ protected static String getAdvertByType(String adtype){
 		        i = database.update(TABLE_UPLOADS, values, "id = ?", args);
 					System.out.println("Update uploads count : "+i);
 		}
+	
+	
+	
+	public static void fillNotify(JSONArray note, Context context){
+		
+		ContentValues values = new ContentValues();
+		
+		if (null == database){
+			System.out.println("DB not  open");
+			return;
+		}
+		
+
+		
+		try {
+			System.out.println("In fillNotify  : "+ note.getJSONObject(0).getString("urlhref"));
+			Util.sendNotofication(context, note.getJSONObject(0));
+		}
+		catch(JSONException ex) {
+			ex.printStackTrace();
+		} 
+		
+	}
 		
 }

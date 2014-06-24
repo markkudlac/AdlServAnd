@@ -28,6 +28,7 @@ public interface Const extends BaseColumns {
 	public static final String API_GETUPLOADDIR = "getuploaddir/";
 	public static final long POLL_DELAY = 1000*3600*4;
 	public static final long CONNECT_DELAY = 5000;
+	public static final long CONNECT_ATTEMPTS = 20;
 	
 	public static final String INSTRUCTCNT = "com.adserv.adladl.instructcnt";
 	public static final String UPLOADTIME = "com.adserv.adladl.uploadtime";
@@ -56,9 +57,11 @@ public interface Const extends BaseColumns {
 	public static final String FLD_URLHREF = "urlhref";
 	public static final String FLD_LOCALHREF = "localhref";
 		public static final String FLD_LOCALHREF_DEF = "/"+PAGES_DIR + "/default.html";
+	public static final String FLD_NOTIFY_TEXT = "notify_text";
 	public static final String FLD_ADL_ID = "adl_id";
 	
 	public static final String TABLE_UPLOADS = "uploads";
 	public static final String FLD_CALL_METHOD = "call_method";
 	public static final String FLD_PARAMS = "params";
+	public static final String UPLOADS_ID = "uploads_id";
 }
