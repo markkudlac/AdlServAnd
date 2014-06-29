@@ -1,0 +1,1 @@
+COPYFILE_DISABLE=1 tar --exclude=".*" -zcvf kitkat.tar.gz index.html *.mp4 *.jpg

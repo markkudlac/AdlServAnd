@@ -213,36 +213,47 @@ public class SQLHelper extends SQLiteOpenHelper {
 		
 		try {
 			int i,rows;
+			String imgsrc, localhref;
 			String[] args = new String[1];
 			
 			for (i=0; i<ads.length(); i++){
 				jsob = ads.getJSONObject(i);
 						
-				values.put(FLD_URLIMG, jsob.getString(FLD_URLIMG));
+				imgsrc = Util.copyImage(context, jsob.getString(AD_IMAGE), 
+						ADS_DIR, jsob.getString(AD_FILENAME), jsob.getLong(FLD_ID));
+				
+				if (jsob.getString(LANDING_ZIPFILE) != "null"){
+					localhref = Util.copyLocalHref(context, jsob.getString(LANDING_ZIPFILE), 
+						LANDING_DIR, jsob.getString(LANDING_ZIPNAME), jsob.getLong(FLD_ID));
+				} else {
+					localhref = FLD_LOCALHREF_DEF;
+				}
+				
+				if (imgsrc == null || localhref == null) {
+					continue;
+				}
+				
+				values.put(FLD_URLIMG, imgsrc);
 		        values.put(FLD_URLHREF, jsob.getString(FLD_URLHREF));
+		        values.put(FLD_LOCALHREF, localhref);
 		        values.put(FLD_ADTYPE, jsob.getString(FLD_ADTYPE));
 		        values.put(FLD_ADL_ID, jsob.getLong(FLD_ID));
+		        values.put(FLD_STATUS, "A");		//Make advert active
 		        values.put(FLD_CREATED_AT, nowtm);
 		        
 		        System.out.println( FLD_ADL_ID + " is  : "+ values.getAsLong(FLD_ADL_ID));
 //		        System.out.println( FLD_CREATED_AT + " is : "+ values.getAsLong(FLD_CREATED_AT));
 //		        System.out.println( FLD_URLHREF + " is : "+ values.getAsString(FLD_URLHREF));
 //		        System.out.println( FLD_URLIMG + " is : "+ values.getAsString(FLD_URLIMG));
-		
-		        // ONLY FOR TESTING  +++++++++++
-		        
-		        if (values.getAsString(FLD_URLIMG).indexOf("kkat") >0){
-		        	values.put(FLD_LOCALHREF, "/pages/kitkat/landvid.html");
-		        }
 		        
 		        args[0] = values.getAsString(FLD_ADL_ID);
 		        rows = database.update(TABLE_ADVERTS, values, FLD_ADL_ID + " = ?", args);
 		        
 		        if (rows == 0 && -1 == database.insert(TABLE_ADVERTS, null, values))
-					System.out.println("adverts insert error");	
+					System.out.println("adverts insert error");
 			}
 			
-			getAdImg();
+//			getAdImg();
 			Prefs.setDownloadTime(context, Util.getTimeNow());
 		}
 		catch(JSONException ex) {
@@ -251,7 +262,8 @@ public class SQLHelper extends SQLiteOpenHelper {
 		
 	}
 	
-	
+
+	/*
 	protected static void getAdImg(){
 
 		new Thread(new Runnable() {
@@ -275,7 +287,6 @@ public class SQLHelper extends SQLiteOpenHelper {
 			}
 
 			tmpCursor.close();
-//		System.out.println("getads arg 1 : "+strt);
 			}
 		}).start();
 	}
@@ -293,7 +304,7 @@ public class SQLHelper extends SQLiteOpenHelper {
 			System.out.println("advert status update error");
 		
 	}
-	
+	*/
 	
 	
 	protected static String exclude(String tag, long advert_id){
@@ -447,11 +458,6 @@ protected static String getAdvertByType(String adtype){
 							
 							adCursor = database.rawQuery(xsel, null);
 							if (adCursor.moveToFirst()){
-								/*
-								item.put(FLD_ID, id);
-								item.put(FLD_URLHREF, adCursor.getString(adCursor.getColumnIndex(FLD_URLHREF)));
-								item.put(FLD_NOTIFY_TEXT, "This Landrover message");
-								*/
 
 								new HttpCom(srvcontext,"fillNotify").execute("fillnotify/"+
 										adCursor.getString(adCursor.getColumnIndex(FLD_ADL_ID))+"/"+
@@ -460,21 +466,13 @@ protected static String getAdvertByType(String adtype){
 								System.out.println("DBerror could not fins advert id : " + item.getString(FLD_ADVERT_ID));
 								item = null;
 							}
-							
 						}
 						catch(JSONException ex) {
-							
 							ex.printStackTrace();
 						}
 						adCursor.close();
-/*						
-						System.out.println("In uploadToAdladl : "+ API_NOTIFY);
-						if (item != null) {
-							Util.sendNotofication(srvcontext, item);
-						}
-		*/
 					} else {
-						new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&id="+uploads_id);
+						new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&"+UPLOADS_ID+"="+uploads_id);
 					}
 					SystemClock.sleep(500);
 				} while(tmpCursor.moveToNext());
@@ -519,7 +517,8 @@ protected static String getAdvertByType(String adtype){
 		} 
 	}
 	
-	
+
+	/*
 	public static void testDone(){
 		int i;
 		ContentValues values = new ContentValues();
@@ -542,7 +541,7 @@ protected static String getAdvertByType(String adtype){
 		        i = database.update(TABLE_UPLOADS, values, "id = ?", args);
 					System.out.println("Update uploads count : "+i);
 		}
-	
+	*/
 	
 	
 	public static void fillNotify(JSONArray note, Context context){

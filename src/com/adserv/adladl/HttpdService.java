@@ -224,6 +224,8 @@ public class HttpdService extends Service {
 		 
 		 System.out.println("This is tester service call");
 		 
+		 new HttpCom(this, "storeAds").execute("getads/"+"mark"+"/0");
+		 
 //		 SQLHelper.uploadToAdladl();
 //		 SQLHelper.testDone();
 //		 Util.sendNotofication(this, "http://www.adladl.com", "Visit Adladl");

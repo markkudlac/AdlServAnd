@@ -161,6 +161,8 @@ public class Util {
      }
      
      
+     /*
+     
      static public void downloadFile(Context context, long id, String uri){
      	HttpURLConnection con = null;
         File downfl = null;
@@ -202,8 +204,74 @@ public class Util {
     		}
     	}
      }
+     */
      
      
+     static public String copyImage(Context context, String img, String imgdir, String flname, Long adlid){
+
+         File downfl = null;
+         String uri;
+        		 
+         uri =  "/"+imgdir +"/"+flname.substring(0, 3)+
+        		 adlid+flname.substring(flname.length()-4);
+         
+         byte[] imageAsBytes = Base64.decode(img, Base64.DEFAULT);
+         
+         downfl = Util.targetCopyFile(context.getFilesDir() + uri);
+ 		
+         try {
+        	 FileOutputStream downflout = new FileOutputStream(downfl); 
+        	 downflout.write(imageAsBytes, 0, imageAsBytes.length);
+        	 downflout.close();
+         }
+     	catch (Exception ex) { 
+     		System.out.println("Exception caught 1 : " + ex);
+     		return(null);
+     	}
+         
+         return(uri);
+     }
+     
+     
+     static public String copyLocalHref(Context context, String img, String landingdir, String flname, Long adlid){
+
+          File downfl = null, tmpdir;
+          String unldfl, locpath; 
+          
+          locpath =  "/"+landingdir+"/"+flname.substring(0, 3)+adlid;
+          unldfl = context.getFilesDir() + locpath +"/"+flname;
+          
+          tmpdir = new File(context.getFilesDir() + locpath);
+          if (tmpdir.exists()) DeleteRecursive(tmpdir); 
+          
+          byte[] imageAsBytes = Base64.decode(img, Base64.DEFAULT);
+          
+          System.out.println("copyLocalHref : " + unldfl);
+          downfl = Util.targetCopyFile(unldfl);
+  		
+          try {
+         	 FileOutputStream downflout = new FileOutputStream(downfl); 
+         	 downflout.write(imageAsBytes, 0, imageAsBytes.length);
+         	 downflout.close();
+         	 
+      		FileInputStream zis = new FileInputStream(downfl);
+
+     		TarInputStream tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(zis)));
+     		tis.setDefaultSkip(true);
+     		untar(context, tis, context.getFilesDir() + locpath);
+
+     		tis.close();
+     		downfl.delete();
+          }
+      	catch (Exception ex) { 
+      		System.out.println("Exception caught 1 : " + ex);
+      		return(null);
+      	}
+          
+          return(locpath + "/index.html");
+      }
+      
+      
      static public long getTimeNow(){
     	 
  		Time tm = new Time();
