@@ -447,7 +447,7 @@ protected static String getAdvertByType(String adtype){
 					
 					System.out.println("UPLOAD  : "+cmethod+"?"+params);
 	
-					if (cmethod.equals(API_NOTIFY)) {
+	//				if (cmethod.equals(API_NOTIFY)) {
 						adCursor = null;
 						JSONObject item = Util.qryStringToJSON(params);
 						
@@ -459,9 +459,17 @@ protected static String getAdvertByType(String adtype){
 							adCursor = database.rawQuery(xsel, null);
 							if (adCursor.moveToFirst()){
 
+								if (cmethod.equals(API_NOTIFY)) {
 								new HttpCom(srvcontext,"fillNotify").execute("fillnotify/"+
 										adCursor.getString(adCursor.getColumnIndex(FLD_ADL_ID))+"/"+
 												uploads_id);
+								} else {
+									// Send form information currently for mailer
+									new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+
+											params+"&"+UPLOADS_ID+"="+uploads_id+"&"+FLD_ADL_ID+"="+
+											adCursor.getString(adCursor.getColumnIndex(FLD_ADL_ID)));
+								}
+								
 							} else {
 								System.out.println("DBerror could not fins advert id : " + item.getString(FLD_ADVERT_ID));
 								item = null;
@@ -471,9 +479,7 @@ protected static String getAdvertByType(String adtype){
 							ex.printStackTrace();
 						}
 						adCursor.close();
-					} else {
-						new HttpCom(srvcontext,"uploadDone").execute(cmethod+"?"+params+"&"+UPLOADS_ID+"="+uploads_id);
-					}
+
 					SystemClock.sleep(500);
 				} while(tmpCursor.moveToNext());
 		}

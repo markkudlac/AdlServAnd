@@ -36,6 +36,9 @@
 				
 				<label for="email">Email:</label>
 				<input type="email" name="email" id="email" data-mini="true" />
+				
+				<input type="text" name="advert_id" id="advert_id" style="display: none" data-mini="true" />
+				
 				<input type="submit" value="Submit" data-mini="true" />
 			</form>
 		
@@ -62,6 +65,7 @@
 
 		initAjax();
 	
+		$("#advert_id").attr("value", getSearchParameters().advert_id)
 		$('#rtnmess').on('load', submitMess);
 		$("#notify").on("vclick", sendNotification);
 		$("#defaultad").attr("src", getSearchParameters().urlimg);
